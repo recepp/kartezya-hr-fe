@@ -1,0 +1,20 @@
+// 
+// user.scss
+// Use this to write your custom SCSS
+//
+
+// Tablo hücrelerinin mobilde tek satırda kalmasını sağlayan global stil
+table {
+  th,
+  td {
+    white-space: nowrap;
+  }
+}
+
+// Horizontal scroll için tablo containerı
+table tbody tr {
+  td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
