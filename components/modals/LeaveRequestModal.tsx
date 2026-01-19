@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Alert } from 'react-bootstrap';
 import { LeaveRequest } from '@/models/hr/common.types';
 import { leaveRequestService } from '@/services/leave-request.service';
-import { leaveTypeService } from '@/services/leave-type.service';
+import { lookupService } from '@/services/lookup.service';
 import { translateErrorMessage } from '@/helpers/ErrorUtils';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-toastify';
@@ -120,7 +120,7 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
 
   const fetchLeaveTypes = async () => {
     try {
-      const response = await leaveTypeService.getLookup();
+      const response = await lookupService.getLeaveTypesLookup();
       const types = response.data || [];
       setLeaveTypes(types);
     } catch (error) {

@@ -75,7 +75,7 @@ $body-color: $gray-600 !default;
 // Typography
 // Font, line-height, and color for body text, headings, and more.
 // stylelint-disable value-keyword-case
-$font-family-sans-serif: "Roboto", "sans-serif" !default;
+$font-family-sans-serif: "Poppins", "Open Sans", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", sans-serif !default;
 $font-family-base: $font-family-sans-serif !default;
 $font-family-heading: $font-family-sans-serif;
 // stylelint-enable value-keyword-case
@@ -90,7 +90,7 @@ $font-weight-semi-bold: 500 !default;
 $font-weight-bold: 700 !default;
 $font-weight-bolder: bolder !default;
 $font-weight-base: $font-weight-normal !default;
-$line-height-base: 1.5 !default;
+$line-height-base: 1.4 !default;
 $link-hover-decoration: none !default;
 
 $h1-font-size: 2.25rem !default;

@@ -4,7 +4,6 @@ import { Formik, Form as FormikForm } from 'formik';
 import * as Yup from 'yup';
 import { employeeService } from '@/services/employee.service';
 import { Employee } from '@/models/hr/common.types';
-import styles from './profile.module.scss';
 import { Container, Row, Col, Button, Spinner, Alert, Card } from 'react-bootstrap';
 import { PageHeading } from '@/widgets';
 import FormTextField from '@/components/FormTextField';
@@ -148,245 +147,320 @@ const Profile = () => {
   };
 
   return (
-    <Container fluid className="ps-6 pe-6 pt-6 pb-6">
-      {/* Page Heading - Sadece başlık, buton yok */}
-      <div className="mb-6">
-        <PageHeading 
-          heading="Personel Bilgilerim"
-          showCreateButton={false}
-          showFilterButton={false}
-        />
-      </div>
+    <>
+      <style jsx global>{`
+        #page-content {
+          background-color: #f5f7fa;
+          min-height: 100vh;
+        }
+      `}</style>
 
-      {error && (
-        <Alert variant="danger" onClose={() => setError(null)} dismissible>
-          {error}
-        </Alert>
-      )}
+      <style jsx>{`
+        /* Container responsive padding */
+        .page-container {
+          padding-left: 1.5rem;
+          padding-right: 1.5rem;
+          padding-top: 1.5rem;
+          padding-bottom: 1.5rem;
+        }
+        @media (max-width: 768px) {
+          .page-container {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+          }
+        }
+        /* Page heading wrapper responsive padding */
+        .page-heading-wrapper {
+          padding-left: 0;
+          padding-right: 0;
+        }
+        @media (min-width: 769px) {
+          .page-heading-wrapper {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+          }
+        }
+        /* Card wrapper responsive padding */
+        .card-wrapper {
+          padding-left: 0;
+          padding-right: 0;
+        }
+        @media (min-width: 769px) {
+          .card-wrapper {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+          }
+        }
+        /* Profile Card Styles */
+        .profile-form-card {
+          border: none;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+          border-radius: 8px;
+          overflow: hidden;
+        }
+        /* Section divider styles */
+        .section-divider {
+          border-top: 2px solid #e9ecef;
+          padding-top: 1.5rem;
+          margin-bottom: 1rem;
+        }
+        .section-title {
+          color: #495057;
+          font-weight: 700;
+          font-size: 16px;
+          margin: 0;
+          margin-bottom: 1rem;
+        }
+      `}</style>
 
-      {/* Profile Form Card */}
-      <Card className={styles.profileFormCard}>
-        <Card.Body className={styles.cardBody}>
-          <div className="position-relative">
-            <LoadingOverlay show={isSubmitting} message="Kaydediliyor..." />
+      <Container fluid className="page-container">
+        {/* Page Heading - Sadece başlık, buton yok */}
+        <div className="page-heading-wrapper">
+          <PageHeading 
+            heading="Personel Bilgilerim"
+            showCreateButton={false}
+            showFilterButton={false}
+          />
+        </div>
 
-            <Formik
-              initialValues={initialValues}
-              validationSchema={validationSchema}
-              onSubmit={handleSubmit}
-            >
-              {({ isSubmitting: formIsSubmitting, values, setFieldValue }) => (
-                <FormikForm>
-                  {/* Name Section */}
-                  <Row className="mb-4">
-                    <FormTextField
-                      as={Col}
-                      md={6}
-                      controlId="first_name"
-                      label="Ad"
-                      name="first_name"
-                      type="text"
-                      disabled
-                    />
-                    <FormTextField
-                      as={Col}
-                      md={6}
-                      controlId="last_name"
-                      label="Soyad"
-                      name="last_name"
-                      type="text"
-                      disabled
-                    />
-                  </Row>
+        {error && (
+          <Alert variant="danger" onClose={() => setError(null)} dismissible>
+            {error}
+          </Alert>
+        )}
 
-                  {/* Company Email Section */}
-                  <Row className="mb-4">
-                    <FormTextField
-                      as={Col}
-                      md={6}
-                      controlId="company_email"
-                      label="Şirket E-posta Adresi"
-                      name="company_email"
-                      type="email"
-                      disabled
-                    />
-                    <FormTextField
-                      as={Col}
-                      md={6}
-                      controlId="email"
-                      label="Kişisel E-posta Adresi"
-                      name="email"
-                      type="email"
-                    />
-                  </Row>
+        {/* Profile Form Card */}
+        <Row>
+          <Col lg={12} md={12} sm={12}>
+            <div className="card-wrapper card-wrapper-standard">
+              <Card className="profile-form-card">
+                <Card.Body className="card-body-standard">
+                  <div className="position-relative">
+                    <LoadingOverlay show={isSubmitting} message="Kaydediliyor..." />
 
-                  {/* Contact Section */}
-                  <Row className="mb-4">
-                    <FormTextField
-                      as={Col}
-                      md={6}
-                      controlId="phone"
-                      label="Telefon No"
-                      name="phone"
-                      type="tel"
-                    />
-                    <FormSelectField
-                      as={Col}
-                      md={6}
-                      controlId="gender"
-                      label="Cinsiyet"
-                      name="gender"
+                    <Formik
+                      initialValues={initialValues}
+                      validationSchema={validationSchema}
+                      onSubmit={handleSubmit}
                     >
-                      <>
-                        <option value="">Seçiniz</option>
-                        {genderOptions.map(opt => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </>
-                    </FormSelectField>
-                  </Row>
+                      {({ isSubmitting: formIsSubmitting, values, setFieldValue }) => (
+                        <FormikForm>
+                          {/* Name Section */}
+                          <Row className="mb-4">
+                            <FormTextField
+                              as={Col}
+                              md={6}
+                              controlId="first_name"
+                              label="Ad"
+                              name="first_name"
+                              type="text"
+                              disabled
+                            />
+                            <FormTextField
+                              as={Col}
+                              md={6}
+                              controlId="last_name"
+                              label="Soyad"
+                              name="last_name"
+                              type="text"
+                              disabled
+                            />
+                          </Row>
 
-                  {/* Address Section */}
-                  <Row className="mb-4">
-                    <Col md={12}>
-                      <FormTextField
-                        controlId="address"
-                        label="Adres"
-                        name="address"
-                        type="text"
-                      />
-                    </Col>
-                  </Row>
+                          {/* Company Email Section */}
+                          <Row className="mb-4">
+                            <FormTextField
+                              as={Col}
+                              md={6}
+                              controlId="company_email"
+                              label="Şirket E-posta Adresi"
+                              name="company_email"
+                              type="email"
+                              disabled
+                            />
+                            <FormTextField
+                              as={Col}
+                              md={6}
+                              controlId="email"
+                              label="Kişisel E-posta Adresi"
+                              name="email"
+                              type="email"
+                            />
+                          </Row>
 
-                  {/* City and State Section */}
-                  <Row className="mb-4">
-                    <FormTextField
-                      as={Col}
-                      md={6}
-                      controlId="state"
-                      label="İl"
-                      name="state"
-                      type="text"
-                    />
-                    <FormTextField
-                      as={Col}
-                      md={6}
-                      controlId="city"
-                      label="İlçe"
-                      name="city"
-                      type="text"
-                    />
-                  </Row>
+                          {/* Contact Section */}
+                          <Row className="mb-4">
+                            <FormTextField
+                              as={Col}
+                              md={6}
+                              controlId="phone"
+                              label="Telefon No"
+                              name="phone"
+                              type="tel"
+                            />
+                            <FormSelectField
+                              as={Col}
+                              md={6}
+                              controlId="gender"
+                              label="Cinsiyet"
+                              name="gender"
+                            >
+                              <>
+                                <option value="">Seçiniz</option>
+                                {genderOptions.map(opt => (
+                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                              </>
+                            </FormSelectField>
+                          </Row>
 
-                  {/* Date Section */}
-                  <Row className="mb-4">
-                    <FormTextField
-                      as={Col}
-                      md={6}
-                      controlId="date_of_birth"
-                      label="Doğum Tarihi"
-                      name="date_of_birth"
-                      type="date"
-                    />
-                    <FormTextField
-                      as={Col}
-                      md={6}
-                      controlId="hire_date"
-                      label="İşe Giriş Tarihi"
-                      name="hire_date"
-                      type="date"
-                      disabled
-                    />
-                  </Row>
+                          {/* Address Section */}
+                          <Row className="mb-4">
+                            <Col md={12}>
+                              <FormTextField
+                                controlId="address"
+                                label="Adres"
+                                name="address"
+                                type="text"
+                              />
+                            </Col>
+                          </Row>
 
-                  {/* Experience and Marital Status Section */}
-                  <Row className="mb-4">
-                    <FormTextField
-                      as={Col}
-                      md={6}
-                      controlId="total_experience"
-                      label="Toplam Deneyim (Yıl)"
-                      name="total_experience"
-                      type="number"
-                    />
-                    <FormSelectField
-                      as={Col}
-                      md={6}
-                      controlId="marital_status"
-                      label="Medeni Durum"
-                      name="marital_status"
-                    >
-                      <>
-                        <option value="">Seçiniz</option>
-                        {maritalStatusOptions.map(opt => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </>
-                    </FormSelectField>
-                  </Row>
+                          {/* City and State Section */}
+                          <Row className="mb-4">
+                            <FormTextField
+                              as={Col}
+                              md={6}
+                              controlId="state"
+                              label="İl"
+                              name="state"
+                              type="text"
+                            />
+                            <FormTextField
+                              as={Col}
+                              md={6}
+                              controlId="city"
+                              label="İlçe"
+                              name="city"
+                              type="text"
+                            />
+                          </Row>
 
-                  {/* Emergency Contact Section Title */}
-                  <Row className="mb-4">
-                    <Col md={12}>
-                      <div className={styles.sectionDivider}>
-                        <h6 className={styles.sectionTitle}>Acil Durum İletişim</h6>
-                      </div>
-                    </Col>
-                  </Row>
+                          {/* Date Section */}
+                          <Row className="mb-4">
+                            <FormTextField
+                              as={Col}
+                              md={6}
+                              controlId="date_of_birth"
+                              label="Doğum Tarihi"
+                              name="date_of_birth"
+                              type="date"
+                            />
+                            <FormTextField
+                              as={Col}
+                              md={6}
+                              controlId="hire_date"
+                              label="İşe Giriş Tarihi"
+                              name="hire_date"
+                              type="date"
+                              disabled
+                            />
+                          </Row>
 
-                  {/* Emergency Contact Fields */}
-                  <Row className="mb-4">
-                    <FormTextField
-                      as={Col}
-                      md={4}
-                      controlId="emergency_contact_name"
-                      label="Ad Soyad"
-                      name="emergency_contact_name"
-                      type="text"
-                    />
-                    <FormTextField
-                      as={Col}
-                      md={4}
-                      controlId="emergency_contact"
-                      label="Telefon No"
-                      name="emergency_contact"
-                      type="tel"
-                    />
-                    <FormSelectField
-                      as={Col}
-                      md={4}
-                      controlId="emergency_contact_relation"
-                      label="İlişkisi"
-                      name="emergency_contact_relation"
-                    >
-                      <>
-                        <option value="">Seçiniz</option>
-                        {emergencyContactRelationOptions.map(opt => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </>
-                    </FormSelectField>
-                  </Row>
+                          {/* Experience and Marital Status Section */}
+                          <Row className="mb-4">
+                            <FormTextField
+                              as={Col}
+                              md={6}
+                              controlId="total_experience"
+                              label="Toplam Deneyim (Yıl)"
+                              name="total_experience"
+                              type="number"
+                            />
+                            <FormSelectField
+                              as={Col}
+                              md={6}
+                              controlId="marital_status"
+                              label="Medeni Durum"
+                              name="marital_status"
+                            >
+                              <>
+                                <option value="">Seçiniz</option>
+                                {maritalStatusOptions.map(opt => (
+                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                              </>
+                            </FormSelectField>
+                          </Row>
 
-                  {/* Submit Buttons */}
-                  <Row className="mt-6">
-                    <Col md={12}>
-                      <Button
-                        variant="primary"
-                        type="submit"
-                        disabled={formIsSubmitting}
-                      >
-                        Kaydet
-                      </Button>
-                    </Col>
-                  </Row>
-                </FormikForm>
-              )}
-            </Formik>
-          </div>
-        </Card.Body>
-      </Card>
-    </Container>
+                          {/* Emergency Contact Section Title */}
+                          <Row className="mb-4">
+                            <Col md={12}>
+                              <div className="section-divider">
+                                <h6 className="section-title">Acil Durum İletişim</h6>
+                              </div>
+                            </Col>
+                          </Row>
+
+                          {/* Emergency Contact Fields */}
+                          <Row className="mb-4">
+                            <FormTextField
+                              as={Col}
+                              md={4}
+                              controlId="emergency_contact_name"
+                              label="Ad Soyad"
+                              name="emergency_contact_name"
+                              type="text"
+                            />
+                            <FormTextField
+                              as={Col}
+                              md={4}
+                              controlId="emergency_contact"
+                              label="Telefon No"
+                              name="emergency_contact"
+                              type="tel"
+                            />
+                            <FormSelectField
+                              as={Col}
+                              md={4}
+                              controlId="emergency_contact_relation"
+                              label="İlişkisi"
+                              name="emergency_contact_relation"
+                            >
+                              <>
+                                <option value="">Seçiniz</option>
+                                {emergencyContactRelationOptions.map(opt => (
+                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                              </>
+                            </FormSelectField>
+                          </Row>
+
+                          {/* Submit Buttons */}
+                          <Row className="mt-6">
+                            <Col md={12}>
+                              <Button
+                                variant="primary"
+                                type="submit"
+                                disabled={formIsSubmitting}
+                              >
+                                Kaydet
+                              </Button>
+                            </Col>
+                          </Row>
+                        </FormikForm>
+                      )}
+                    </Formik>
+                  </div>
+                </Card.Body>
+              </Card>
+            </div>
+          </Col>
+        </Row>
+      </Container>
+    </>
   );
 };
 

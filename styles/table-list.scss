@@ -25,17 +25,51 @@
 .table-responsive {
   border-radius: 0;
   margin-bottom: 0;
+  
+  /* Mobile görünümde horizontal scroll */
+  @media (max-width: 768px) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+    display: block;
+    width: 100%;
+    
+    /* Scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f0f0f0;
+    
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f0f0f0;
+      border-radius: 10px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: #cbd5e0;
+      border-radius: 10px;
+      
+      &:hover {
+        background: #a0aec0;
+      }
+    }
+  }
 }
 
 table {
   margin-bottom: 0;
-  table-layout: fixed;
   width: 100%;
+  border-collapse: collapse;
 
   td, th {
     padding: 12px 16px;
     vertical-align: middle;
-    word-wrap: break-word;
+    white-space: nowrap; /* Metni alt satıra almaz */
+    
+    @media (max-width: 768px) {
+      padding: 10px 12px;
+    }
   }
 
   thead tr {
@@ -47,5 +81,24 @@ table {
   th:last-child,
   td:last-child {
     text-align: right;
+  }
+  
+  /* Mobile'da minimum kolon genişliğini ayarla */
+  @media (max-width: 768px) {
+    th, td {
+      min-width: 100px; /* Kolonlar minimum genişlik alacak */
+    }
+    
+    /* ID kolonu daha dar olabilir */
+    th:first-child,
+    td:first-child {
+      min-width: 60px;
+    }
+    
+    /* İşlemler kolonu daha geniş */
+    th:last-child,
+    td:last-child {
+      min-width: 120px;
+    }
   }
 }

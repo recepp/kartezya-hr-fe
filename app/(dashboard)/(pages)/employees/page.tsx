@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { Row, Col, Card, Table, Button, Form, Badge } from 'react-bootstrap';
-import { employeeService, ListEmployeesParams } from '@/services';
+import { Row, Col, Card, Table, Button, Form, Badge, Container } from 'react-bootstrap';
+import { employeeService } from '@/services';
 import { Employee } from '@/models/hr/common.types';
+import { PageHeading } from '@/widgets';
 import Pagination from '@/components/Pagination';
 import { Plus, Edit, Trash2, Eye, Filter, ChevronUp, ChevronDown } from 'react-feather';
 import { toast } from 'react-toastify';
@@ -13,7 +14,6 @@ const EmployeesPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [searchFilter, setSearchFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
   const [pageData, setPageData] = useState({
     page: 1,
     limit: 10,
@@ -31,30 +31,28 @@ const EmployeesPage = () => {
   });
 
   // Backend'den verileri çek
-  const fetchEmployees = async (page: number = 1, search: string = '', status: string = '', sortKey: string = '', sortDir: 'ASC' | 'DESC' = 'ASC') => {
+  const fetchEmployees = async (page: number = 1, search: string = '', sortKey: string = '', sortDir: 'ASC' | 'DESC' = 'ASC') => {
     try {
       setIsLoading(true);
-      const offset = (page - 1) * pageData.limit;
       
-      const params: ListEmployeesParams = {
-        limit: pageData.limit,
-        offset: offset,
-        search: search || undefined,
-        status: status || undefined,
+      const params = {
+        page: page,
+        size: pageData.limit,
         sort: sortKey || undefined,
-        direction: sortDir
+        direction: sortDir,
+        search: search || undefined
       };
 
-      const response = await employeeService.listWithFilters(params);
+      const response = await employeeService.getAll(params);
       
-      if (response.data?.data) {
-        setEmployees(response.data.data);
+      if (response?.data) {
+        setEmployees(response.data || []);
         setPageData({
-          page: response.data.page?.page || 1,
-          limit: response.data.page?.limit || 10,
-          offset: response.data.page?.offset || 0,
-          total: response.data.page?.total || 0,
-          total_pages: response.data.page?.total_pages || 1
+          page: response.page?.page || 1,
+          limit: response.page?.limit || 10,
+          offset: ((response.page?.page || 1) - 1) * (response.page?.limit || 10),
+          total: response.page?.total || 0,
+          total_pages: response.page?.total_pages || 1
         });
       }
     } catch (error: any) {
@@ -77,24 +75,18 @@ const EmployeesPage = () => {
       direction = 'DESC';
     }
     setSortConfig({ key, direction });
-    fetchEmployees(1, searchFilter, statusFilter, key, direction);
+    fetchEmployees(1, searchFilter, key, direction);
   };
 
   // Arama filtresi değiştiğinde backend'e istek at
   const handleSearchChange = (value: string) => {
     setSearchFilter(value);
-    fetchEmployees(1, value, statusFilter, sortConfig.key || '', sortConfig.direction);
-  };
-
-  // Durum filtresi değiştiğinde backend'e istek at
-  const handleStatusChange = (value: string) => {
-    setStatusFilter(value);
-    fetchEmployees(1, searchFilter, value, sortConfig.key || '', sortConfig.direction);
+    fetchEmployees(1, value, sortConfig.key || '', sortConfig.direction);
   };
 
   // Sayfa değiştiğinde backend'e istek at
   const handlePageChange = (newPage: number) => {
-    fetchEmployees(newPage, searchFilter, statusFilter, sortConfig.key || '', sortConfig.direction);
+    fetchEmployees(newPage, searchFilter, sortConfig.key || '', sortConfig.direction);
   };
 
   const getSortIcon = (columnKey: 'first_name' | 'last_name' | 'email' | 'hire_date') => {
@@ -121,7 +113,7 @@ const EmployeesPage = () => {
       try {
         await employeeService.delete(id);
         toast.success('Çalışan başarıyla silindi');
-        fetchEmployees(pageData.page, searchFilter, statusFilter, sortConfig.key || '', sortConfig.direction);
+        fetchEmployees(pageData.page, searchFilter, sortConfig.key || '', sortConfig.direction);
       } catch (error: any) {
         let errorMessage = '';
         
@@ -141,12 +133,6 @@ const EmployeesPage = () => {
         toast.error(translatedError);
       }
     }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const variant = status === 'ACTIVE' ? 'success' : status === 'INACTIVE' ? 'warning' : 'danger';
-    const text = status === 'ACTIVE' ? 'Aktif' : status === 'INACTIVE' ? 'Pasif' : 'Sonlandırıldı';
-    return <Badge bg={variant}>{text}</Badge>;
   };
 
   return (
@@ -187,6 +173,11 @@ const EmployeesPage = () => {
           vertical-align: middle;
           word-wrap: break-word;
         }
+        @media (max-width: 768px) {
+          table td, table th {
+            padding: 10px 8px;
+          }
+        }
         table thead tr {
           background-color: #f8f9fa;
           border-bottom: 2px solid #dee2e6;
@@ -196,178 +187,199 @@ const EmployeesPage = () => {
           background-color: white;
           border-bottom: none;
         }
+        @media (max-width: 768px) {
+          table thead tr:last-child td {
+            padding: 10px 8px;
+          }
+        }
         table thead tr:last-child .filter-input {
           width: 100%;
         }
+        /* Container responsive padding */
+        .page-container {
+          padding-left: 1.5rem;
+          padding-right: 1.5rem;
+          padding-top: 1.5rem;
+          padding-bottom: 1.5rem;
+        }
+        @media (max-width: 768px) {
+          .page-container {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+          }
+        }
+        /* Inner divs responsive padding */
+        .table-wrapper {
+          padding-left: 0;
+          padding-right: 0;
+        }
+        @media (min-width: 769px) {
+          .table-wrapper {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+          }
+        }
+        /* Page heading wrapper responsive padding */
+        .page-heading-wrapper {
+          padding-left: 0;
+          padding-right: 0;
+        }
+        @media (min-width: 769px) {
+          .page-heading-wrapper {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+          }
+        }
       `}</style>
 
-      <Row className="mb-4 px-3 pt-4">
-        <Col lg={12} md={12} sm={12}>
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="mb-0">Çalışanlar</h4>
-            <div className="d-flex gap-2">
-              <Button 
-                variant="outline-secondary" 
-                size="sm" 
-                onClick={() => setShowFilters(!showFilters)}
-                disabled={isLoading}
-              >
-                <Filter size={16} />
-              </Button>
-              
-              <Button variant="primary" size="sm" disabled={isLoading}>
-                <Plus size={16} className="me-1" />
-                Yeni Çalışan
-              </Button>
-            </div>
-          </div>
-        </Col>
-      </Row>
+      <Container fluid className="page-container">
+        {/* Page Heading */}
+        <div className="page-heading-wrapper">
+          <PageHeading 
+            heading="Çalışanlar"
+            showCreateButton={true}
+            showFilterButton={true}
+            createButtonText="Yeni Çalışan"
+            onCreate={() => {
+              // TODO: Implement create modal
+            }}
+            onToggleFilter={() => setShowFilters(!showFilters)}
+          />
+        </div>
 
-      <Row>
-        <Col lg={12} md={12} sm={12}>
-          <div className="px-3">
-            <Card className="border-0 shadow-sm position-relative">
-              <Card.Body className="p-0">
-                <div className="table-box">
-                  <div className="table-responsive">
-                    <Table hover className="mb-0">
-                      <thead>
-                        <tr>
-                          <th>ID</th>
-                          <th
-                            onClick={() => handleSort('first_name')}
-                            className="sortable-header"
-                          >
-                            Ad Soyad {getSortIcon('first_name')}
-                          </th>
-                          <th
-                            onClick={() => handleSort('email')}
-                            className="sortable-header"
-                          >
-                            E-posta {getSortIcon('email')}
-                          </th>
-                          <th>Telefon</th>
-                          <th
-                            onClick={() => handleSort('hire_date')}
-                            className="sortable-header"
-                          >
-                            İşe Başlama {getSortIcon('hire_date')}
-                          </th>
-                          <th>Durum</th>
-                          <th>İşlemler</th>
-                        </tr>
-                        {showFilters && (
+        {/* Table Card */}
+        <Row>
+          <Col lg={12} md={12} sm={12}>
+            <div className="table-wrapper">
+              <Card className="border-0 shadow-sm position-relative">
+                <Card.Body className="p-0">
+                  <div className="table-box">
+                    <div className="table-responsive">
+                      <Table hover className="mb-0">
+                        <thead>
                           <tr>
-                            <td className="border-top">
-                            </td>
-                            <td className="border-top">
-                              <Form.Control
-                                type="text"
-                                placeholder="Ad, Soyad..."
-                                value={searchFilter}
-                                onChange={(e) => handleSearchChange(e.target.value)}
-                                className="filter-input"
-                                size="sm"
-                                disabled={isLoading}
-                              />
-                            </td>
-                            <td className="border-top">
-                            </td>
-                            <td className="border-top">
-                            </td>
-                            <td className="border-top">
-                            </td>
-                            <td className="border-top">
-                              <Form.Select
-                                value={statusFilter}
-                                onChange={(e) => handleStatusChange(e.target.value)}
-                                size="sm"
-                                disabled={isLoading}
-                              >
-                                <option value="">Tümü</option>
-                                <option value="ACTIVE">Aktif</option>
-                                <option value="INACTIVE">Pasif</option>
-                                <option value="TERMINATED">Sonlandırıldı</option>
-                              </Form.Select>
-                            </td>
-                            <td className="border-top">
-                            </td>
+                            <th>ID</th>
+                            <th
+                              onClick={() => handleSort('first_name')}
+                              className="sortable-header"
+                            >
+                              Ad Soyad {getSortIcon('first_name')}
+                            </th>
+                            <th
+                              onClick={() => handleSort('email')}
+                              className="sortable-header"
+                            >
+                              E-posta {getSortIcon('email')}
+                            </th>
+                            <th>Telefon</th>
+                            <th
+                              onClick={() => handleSort('hire_date')}
+                              className="sortable-header"
+                            >
+                              İşe Başlama {getSortIcon('hire_date')}
+                            </th>
+                            <th>İşlemler</th>
                           </tr>
-                        )}
-                      </thead>
-                      <tbody>
-                        {employees.length ? (
-                          employees.map((employee: Employee) => (
-                            <tr key={employee.id}>
-                              <td>{employee.id}</td>
-                              <td>{employee.firstName} {employee.lastName}</td>
-                              <td>{employee.email}</td>
-                              <td>{employee.phone || '-'}</td>
-                              <td>{employee.hireDate ? new Date(employee.hireDate).toLocaleDateString('tr-TR') : '-'}</td>
-                              <td>{getStatusBadge(employee.status)}</td>
-                              <td>
-                                <Button
-                                  variant="outline-info"
+                          {showFilters && (
+                            <tr>
+                              <td className="border-top">
+                              </td>
+                              <td className="border-top">
+                                <Form.Control
+                                  type="text"
+                                  placeholder="Ad, Soyad..."
+                                  value={searchFilter}
+                                  onChange={(e) => handleSearchChange(e.target.value)}
+                                  className="filter-input"
                                   size="sm"
-                                  className="me-2"
-                                  onClick={() => handleView(employee)}
                                   disabled={isLoading}
-                                >
-                                  <Eye size={14} />
-                                </Button>
-                                <Button
-                                  variant="outline-primary"
-                                  size="sm"
-                                  className="me-2"
-                                  onClick={() => handleEdit(employee)}
-                                  disabled={isLoading}
-                                >
-                                  <Edit size={14} />
-                                </Button>
-                                <Button
-                                  variant="outline-danger"
-                                  size="sm"
-                                  onClick={() => handleDelete(employee.id)}
-                                  disabled={isLoading}
-                                >
-                                  <Trash2 size={14} />
-                                </Button>
+                                />
+                              </td>
+                              <td className="border-top">
+                              </td>
+                              <td className="border-top">
+                              </td>
+                              <td className="border-top">
+                              </td>
+                              <td className="border-top">
                               </td>
                             </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={7} className="text-center py-4">
-                              {isLoading ? 'Yükleniyor...' : 'Veri bulunamadı'}
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </Table>
+                          )}
+                        </thead>
+                        <tbody>
+                          {employees.length ? (
+                            employees.map((employee: Employee) => (
+                              <tr key={employee.id}>
+                                <td>{employee.id}</td>
+                                <td>{employee.first_name} {employee.last_name}</td>
+                                <td>{employee.email}</td>
+                                <td>{employee.phone || '-'}</td>
+                                <td>{employee.hire_date ? new Date(employee.hire_date).toLocaleDateString('tr-TR') : '-'}</td>
+                                <td>
+                                  <Button
+                                    variant="outline-info"
+                                    size="sm"
+                                    className="me-2"
+                                    onClick={() => handleView(employee)}
+                                    disabled={isLoading}
+                                  >
+                                    <Eye size={14} />
+                                  </Button>
+                                  <Button
+                                    variant="outline-primary"
+                                    size="sm"
+                                    className="me-2"
+                                    onClick={() => handleEdit(employee)}
+                                    disabled={isLoading}
+                                  >
+                                    <Edit size={14} />
+                                  </Button>
+                                  <Button
+                                    variant="outline-danger"
+                                    size="sm"
+                                    onClick={() => handleDelete(employee.id)}
+                                    disabled={isLoading}
+                                  >
+                                    <Trash2 size={14} />
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={6} className="text-center py-4">
+                                {isLoading ? 'Yükleniyor...' : 'Veri bulunamadı'}
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </Table>
+                    </div>
                   </div>
-                </div>
-              </Card.Body>
-            </Card>
-          </div>
-        </Col>
-      </Row>
-
-      {!isLoading && (
-        <Row className="mt-4">
-          <Col lg={12} md={12} sm={12}>
-            <div className="px-3">
-              <Pagination
-                currentPage={pageData.page}
-                totalPages={pageData.total_pages}
-                totalItems={pageData.total}
-                itemsPerPage={pageData.limit}
-                onPageChange={handlePageChange}
-              />
+                </Card.Body>
+              </Card>
             </div>
           </Col>
         </Row>
-      )}
+
+        {!isLoading && (
+          <Row className="mt-4">
+            <Col lg={12} md={12} sm={12}>
+              <div className="px-3">
+                <Pagination
+                  currentPage={pageData.page}
+                  totalPages={pageData.total_pages}
+                  totalItems={pageData.total}
+                  itemsPerPage={pageData.limit}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            </Col>
+          </Row>
+        )}
+      </Container>
     </>
   );
 };

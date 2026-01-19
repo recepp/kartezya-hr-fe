@@ -22,7 +22,7 @@ const PageHeading = ({
     <Row>
       <Col lg={12} md={12} xs={12}>
         {/* Page header */}
-        <div className="border-bottom pb-4 mb-4 ">
+        <div className="border-bottom pb-4 mt-4 mb-4">
           <div className="d-flex justify-content-between align-items-center">
             <h3 className="mb-0 fw-bold">{heading}</h3>
             <div className="d-flex justify-content-end align-items-center">
@@ -51,6 +51,13 @@ const PageHeading = ({
             </div>
           </div>
         </div>
+        <style jsx>{`
+          @media (max-width: 768px) {
+            .border-bottom {
+              margin-bottom: 1rem;
+            }
+          }
+        `}</style>
       </Col>
     </Row>
   );

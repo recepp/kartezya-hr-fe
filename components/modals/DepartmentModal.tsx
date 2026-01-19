@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-import { Department, Company } from '@/models/hr/common.types';
-import { departmentService, companyService } from '@/services';
+import { Department } from '@/models/hr/common.types';
+import { departmentService, lookupService } from '@/services';
+import { CompanyLookup } from '@/services/lookup.service';
 import { translateErrorMessage, getFieldErrorMessage } from '@/helpers/ErrorUtils';
 import { toast } from 'react-toastify';
 import LoadingOverlay from '@/components/LoadingOverlay';
@@ -26,7 +27,7 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
     name: '',
     manager: ''
   });
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [companies, setCompanies] = useState<CompanyLookup[]>([]);
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{[key: string]: string}>({});
 
@@ -54,10 +55,11 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
 
   const fetchCompanies = async () => {
     try {
-      const response = await companyService.getAll();
+      const response = await lookupService.getCompaniesLookup();
       setCompanies(response.data || []);
     } catch (error) {
       console.error('Error fetching companies:', error);
+      toast.error('Şirketler yüklenemedi');
     }
   };
 
@@ -68,7 +70,6 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
       [name]: value
     }));
 
-    // Anlık validasyon - hata varsa temizle
     if (fieldErrors[name]) {
       setFieldErrors(prev => ({
         ...prev,
@@ -80,7 +81,6 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
   const validateForm = (): boolean => {
     const errors: {[key: string]: string} = {};
     
-    // Her alan için validasyon
     Object.keys(formData).forEach(fieldName => {
       const fieldValue = formData[fieldName as keyof typeof formData];
       const errorMessage = getFieldErrorMessage(fieldName, fieldValue);
@@ -103,16 +103,12 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
     setLoading(true);
 
     try {
-      // Backend'e uygun format için field adlarını düzelt - backend company_id bekliyor
       const submitData = {
         name: formData.name.trim(),
-        company_id: parseInt(formData.companyId), // Backend company_id (underscore) bekliyor
+        company_id: parseInt(formData.companyId),
         manager: formData.manager.trim()
       };
 
-      console.log('Sending department data:', submitData); // Debug için
-
-      // company_id'nin valid number olduğunu kontrol et
       if (isNaN(submitData.company_id) || submitData.company_id <= 0) {
         toast.error('Geçerli bir şirket seçiniz');
         return;
@@ -128,11 +124,8 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
       onSave();
       onHide();
     } catch (error: any) {
-      console.error('Department submit error:', error); // Debug için
-      
       let errorMessage = '';
       
-      // Backend validation hatalarını daha iyi yakala
       if (error.response?.data?.details) {
         errorMessage = error.response.data.details;
       } else if (error.response?.data?.message) {
@@ -147,7 +140,6 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
         errorMessage = 'Bir hata oluştu';
       }
       
-      // Türkçe çeviriye gönder ve toast olarak göster
       const translatedError = translateErrorMessage(errorMessage);
       toast.error(translatedError);
     } finally {

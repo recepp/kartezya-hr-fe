@@ -8,4 +8,5 @@ export * from './work-information.service';
 export * from './leave-type.service';
 export * from './leave-request.service';
 export * from './leave-balance.service';
+export * from './lookup.service';
 export * from './base.service';
