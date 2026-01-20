@@ -3,6 +3,46 @@ import { BaseService } from './base.service';
 import { Employee } from '@/models/hr/common.types';
 import axiosInstance from '@/helpers/api/axiosInstance';
 
+interface CreateEmployeeRequest {
+  email: string;
+  company_email: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  address?: string;
+  state?: string;
+  city?: string;
+  gender?: string;
+  date_of_birth?: string;
+  hire_date: string;
+  total_experience?: number;
+  marital_status?: string;
+  emergency_contact?: string;
+  emergency_contact_name?: string;
+  emergency_contact_relation?: string;
+  roles: string[];
+}
+
+interface UpdateEmployeeRequest {
+  email?: string;
+  company_email?: string;
+  first_name: string;
+  last_name: string;
+  phone?: string;
+  address?: string;
+  state?: string;
+  city?: string;
+  gender?: string;
+  date_of_birth?: string;
+  hire_date?: string;
+  total_experience?: number;
+  marital_status?: string;
+  emergency_contact?: string;
+  emergency_contact_name?: string;
+  emergency_contact_relation?: string;
+  roles?: string[];
+}
+
 interface UpdateMyProfileRequest {
   email?: string;
   phone?: string;
@@ -32,9 +72,27 @@ class EmployeeService extends BaseService<Employee> {
     }
   }
 
-  async updateProfile(employeeId: number, data: Partial<Employee>) {
+  async create(data: CreateEmployeeRequest) {
+    try {
+      const response = await axiosInstance.post(this.baseUrl, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateProfile(employeeId: number, data: UpdateEmployeeRequest) {
     try {
       const response = await axiosInstance.put(`${this.baseUrl}/${employeeId}`, data);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async update(id: number | string, data: UpdateEmployeeRequest) {
+    try {
+      const response = await axiosInstance.put(`${this.baseUrl}/${id}`, data);
       return response.data;
     } catch (error) {
       throw error;

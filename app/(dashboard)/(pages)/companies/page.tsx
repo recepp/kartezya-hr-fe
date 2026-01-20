@@ -41,7 +41,7 @@ const CompaniesPage = () => {
 
       const response = await companyService.getAll({ 
         page, 
-        size: itemsPerPage,
+        limit: itemsPerPage,
         sort: sortKey,
         direction: sortDir
       });

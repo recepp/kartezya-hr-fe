@@ -123,6 +123,7 @@ export interface Employee {
   first_name: string;
   last_name: string;
   email: string;
+  company_email?: string;
   phone?: string;
   address?: string;
   state?: string;
@@ -135,6 +136,13 @@ export interface Employee {
   emergency_contact?: string;
   emergency_contact_name?: string;
   emergency_contact_relation?: string;
+  roles?: string[];
+  work_information?: {
+    company_name: string;
+    department_name: string;
+    manager: string;
+    job_title: string;
+  };
 }
 
 // Company Types
@@ -176,6 +184,31 @@ export interface JobPosition {
   department?: Department;
   // Helper properties
   departmentId?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface EmployeeWorkInformation {
+  id: number;
+  employee_id: number;
+  company_id: number;
+  department_id: number;
+  job_position_id: number;
+  start_date: string;
+  end_date?: string;
+  created_at: string;
+  updated_at: string;
+  employee?: Employee;
+  company?: Company;
+  department?: Department;
+  job_position?: JobPosition;
+  // Helper properties
+  employeeId?: number;
+  companyId?: number;
+  departmentId?: number;
+  jobPositionId?: number;
+  startDate?: string;
+  endDate?: string;
   createdAt?: string;
   updatedAt?: string;
 }

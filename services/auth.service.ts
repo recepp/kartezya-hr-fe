@@ -1,6 +1,7 @@
 import { HR_ENDPOINTS } from '@/contants/urls';
 import axiosInstance from '@/helpers/api/axiosInstance';
 import { getErrorMessage } from '@/helpers/HelperUtils';
+import { getAvatarByUserId } from '@/helpers/avatarUtils';
 import { toast } from 'react-toastify';
 
 export interface LoginRequest {
@@ -17,6 +18,9 @@ export interface LoginResponse {
       email: string;
       password?: string;
       roles: string[];
+      avatar?: string;
+      firstName?: string;
+      lastName?: string;
     };
   };
   error?: string;
@@ -27,6 +31,9 @@ export interface UserProfile {
   email: string;
   password?: string;
   roles: string[];
+  avatar?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 // Cookie management utilities
@@ -64,11 +71,14 @@ export const authService = {
       console.log('Response data.data.user:', data.data?.user);
       console.log('User roles:', data.data?.user?.roles);
       
-      // Backend response yapısı: { success, data: { token, user: { id, email, roles } } }
+      // Backend response yapısı: { success, data: { token, user: { id, email, roles, firstName, lastName } } }
       if (data.success && data.data?.token && data.data?.user) {
-        const user = data.data.user;
+        let user = data.data.user;
         console.log('User object:', user);
         console.log('User roles array:', user.roles);
+        
+        // Assign avatar based on user ID
+        user.avatar = getAvatarByUserId(user.id);
         
         // Store token and user info
         localStorage.setItem('hr_auth_token', data.data.token);
@@ -104,7 +114,13 @@ export const authService = {
   getProfile: async (): Promise<UserProfile> => {
     try {
       const response = await axiosInstance.get(HR_ENDPOINTS.AUTH.PROFILE);
-      const profile = response.data.data as UserProfile;
+      let profile = response.data.data as UserProfile;
+      
+      // Assign avatar if not already set
+      if (!profile.avatar) {
+        profile.avatar = getAvatarByUserId(profile.id);
+      }
+      
       localStorage.setItem('hr_user_profile', JSON.stringify(profile));
       return profile;
     } catch (error) {

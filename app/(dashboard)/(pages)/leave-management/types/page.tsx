@@ -41,7 +41,7 @@ const LeaveTypesPage = () => {
 
       const response = await leaveTypeService.getAll({ 
         page, 
-        size: itemsPerPage,
+        limit: itemsPerPage,
         sort: sortKey,
         direction: sortDir
       });

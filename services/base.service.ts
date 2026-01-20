@@ -13,7 +13,7 @@ export type { PaginatedResponse };
 
 export interface PaginationParams {
   page?: number;
-  size?: number;
+  limit?: number;
   sort?: string;
   direction?: 'ASC' | 'DESC';
   search?: string;

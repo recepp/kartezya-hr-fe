@@ -1,0 +1,135 @@
+@import '@/styles/_user-variables.scss';
+
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 0;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  }
+}
+
+.cardBody {
+  padding: 1.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.dateInfo {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 1rem;
+
+  .dateLabel {
+    font-weight: 500;
+    color: #6b7280;
+  }
+
+  .dateValue {
+    font-weight: 600;
+    color: #1f2937;
+    margin-left: 0.5rem;
+  }
+}
+
+.progressSection {
+  margin-bottom: 1rem;
+}
+
+.progressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.progressLabel {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.progressPercent {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.progressBar {
+  height: 8px;
+  border-radius: 4px;
+  background-color: #e5e7eb;
+  overflow: hidden;
+
+  div {
+    border-radius: 4px;
+  }
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.teamMembers {
+  display: flex;
+  align-items: center;
+  gap: -8px;
+}
+
+.memberAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  border: 2px solid white;
+  margin-left: -8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &:first-child {
+    margin-left: 0;
+  }
+}
+
+.memberMore {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #d1d5db;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  border: 2px solid white;
+  margin-left: -8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.lastUpdated {
+  font-size: 12px;
+  color: #9ca3af;
+}

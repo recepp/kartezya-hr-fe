@@ -1,0 +1,130 @@
+@import '@/styles/_user-variables.scss';
+
+.pageContainer {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+.mainContent {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.contentWrapper {
+  padding: 2rem;
+  max-width: 1400px;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+.backButtonWrapper {
+  margin-bottom: 1.5rem;
+}
+
+.backButton {
+  padding: 0.5rem 1rem;
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #4f46e5;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.subsection {
+  margin-bottom: 2rem;
+}
+
+.subsectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.projectGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+.notFoundContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  padding: 2rem;
+
+  h5 {
+    font-size: 18px;
+    color: #6b7280;
+    margin-bottom: 1rem;
+  }
+}
+
+.notFoundMessage {
+  text-align: center;
+  margin-top: 2rem;
+
+  h5 {
+    font-size: 18px;
+    color: #6b7280;
+  }
+}

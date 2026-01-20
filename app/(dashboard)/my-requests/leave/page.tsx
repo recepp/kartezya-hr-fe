@@ -43,9 +43,9 @@ const MyLeaveRequests = () => {
       setIsLoading(true);
 
       // Pagination ile kendi taleplerini getir
-      const response = await leaveRequestService.getMyLeaveRequests({
-        page,
-        size: itemsPerPage,
+      const response = await leaveRequestService.getAll({ 
+        page, 
+        limit: itemsPerPage,
         sort: sortKey,
         direction: sortDir
       });
@@ -197,7 +197,7 @@ const MyLeaveRequests = () => {
               disabled={isLoading}
             >
               <Plus size={16} className="me-2" style={{ display: 'inline' }} />
-              Yeni
+              Yeni İzin Talebi
             </Button>
           </div>
         </Col>

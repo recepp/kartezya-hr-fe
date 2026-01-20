@@ -26,7 +26,7 @@ const LeaveRequestsPage = () => {
   const [showApproveWarningModal, setShowApproveWarningModal] = useState(false);
   const [approveWarningRequest, setApproveWarningRequest] = useState<LeaveRequest | null>(null);
 
-  const itemsPerPage = 10;
+  const itemsPerPage = 3;
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -45,7 +45,7 @@ const LeaveRequestsPage = () => {
 
       const response = await leaveRequestService.getAll({ 
         page, 
-        size: itemsPerPage,
+        limit: itemsPerPage,
         sort: sortKey,
         direction: sortDir
       });
@@ -405,6 +405,15 @@ const LeaveRequestsPage = () => {
                                           >
                                             <X size={14} />
                                           </Button>
+                                          <Button
+                                            variant="outline-primary"
+                                            size="sm"
+                                            title="Düzenle"
+                                            onClick={() => handleEdit(request)}
+                                            disabled={isLoading || actionLoading}
+                                          >
+                                            <Edit size={14} />
+                                          </Button>
                                         </>
                                       )}
                                       {request.status !== 'REJECTED' && request.status !== 'CANCELLED' && (
@@ -418,15 +427,6 @@ const LeaveRequestsPage = () => {
                                           İptal Et
                                         </Button>
                                       )}
-                                      <Button
-                                        variant="outline-primary"
-                                        size="sm"
-                                        title="Düzenle"
-                                        onClick={() => handleEdit(request)}
-                                        disabled={isLoading || actionLoading}
-                                      >
-                                        <Edit size={14} />
-                                      </Button>
                                     </div>
                                   </td>
                                 </tr>

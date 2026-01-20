@@ -1,59 +1,59 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { Row, Col, Card, Table, Button, Form, Badge, Container } from 'react-bootstrap';
+import { useRouter } from 'next/navigation';
+import { Row, Col, Card, Table, Button, Badge, Container } from 'react-bootstrap';
 import { employeeService } from '@/services';
 import { Employee } from '@/models/hr/common.types';
 import { PageHeading } from '@/widgets';
 import Pagination from '@/components/Pagination';
-import { Plus, Edit, Trash2, Eye, Filter, ChevronUp, ChevronDown } from 'react-feather';
+import EmployeeModal from '@/components/modals/EmployeeModal';
+import DeleteModal from '@/components/DeleteModal';
+import LoadingOverlay from '@/components/LoadingOverlay';
+import { Plus, Edit, Trash2, Eye, ChevronUp, ChevronDown } from 'react-feather';
 import { toast } from 'react-toastify';
 import { translateErrorMessage } from '@/helpers/ErrorUtils';
+import '@/styles/table-list.scss';
 
 const EmployeesPage = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [searchFilter, setSearchFilter] = useState('');
-  const [pageData, setPageData] = useState({
-    page: 1,
-    limit: 10,
-    offset: 0,
-    total: 0,
-    total_pages: 1
-  });
-  
+  const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [isEdit, setIsEdit] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const itemsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+
   const [sortConfig, setSortConfig] = useState<{
-    key: 'first_name' | 'last_name' | 'email' | 'hire_date' | null;
+    key: 'first_name' | 'last_name' | null;
     direction: 'ASC' | 'DESC';
   }>({
     key: null,
     direction: 'ASC'
   });
 
-  // Backend'den verileri çek
-  const fetchEmployees = async (page: number = 1, search: string = '', sortKey: string = '', sortDir: 'ASC' | 'DESC' = 'ASC') => {
+  const router = useRouter();
+
+  const fetchEmployees = async (page: number = 1, sortKey?: string, sortDir?: 'ASC' | 'DESC') => {
     try {
       setIsLoading(true);
-      
-      const params = {
-        page: page,
-        size: pageData.limit,
-        sort: sortKey || undefined,
-        direction: sortDir,
-        search: search || undefined
-      };
 
-      const response = await employeeService.getAll(params);
+      const response = await employeeService.getAll({ 
+        page, 
+        limit: itemsPerPage,
+        sort: sortKey,
+        direction: sortDir
+      });
       
-      if (response?.data) {
-        setEmployees(response.data || []);
-        setPageData({
-          page: response.page?.page || 1,
-          limit: response.page?.limit || 10,
-          offset: ((response.page?.page || 1) - 1) * (response.page?.limit || 10),
-          total: response.page?.total || 0,
-          total_pages: response.page?.total_pages || 1
-        });
+      if (response.data) {
+        setEmployees(response.data);
+        setTotalPages(response.page?.total_pages || 1);
+        setTotalItems(response.page?.total || 0);
+        setCurrentPage(page);
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.error || error.message || 'Veri çekme sırasında hata oluştu';
@@ -63,33 +63,20 @@ const EmployeesPage = () => {
     }
   };
 
-  // Sayfa yüklendiğinde verileri çek
   useEffect(() => {
-    fetchEmployees();
+    fetchEmployees(1);
   }, []);
 
-  // Filtreleme veya sıralama değiştiğinde backend'e istek at
-  const handleSort = (key: 'first_name' | 'last_name' | 'email' | 'hire_date') => {
+  const handleSort = (key: 'first_name' | 'last_name') => {
     let direction: 'ASC' | 'DESC' = 'ASC';
     if (sortConfig.key === key && sortConfig.direction === 'ASC') {
       direction = 'DESC';
     }
     setSortConfig({ key, direction });
-    fetchEmployees(1, searchFilter, key, direction);
+    fetchEmployees(1, key, direction);
   };
 
-  // Arama filtresi değiştiğinde backend'e istek at
-  const handleSearchChange = (value: string) => {
-    setSearchFilter(value);
-    fetchEmployees(1, value, sortConfig.key || '', sortConfig.direction);
-  };
-
-  // Sayfa değiştiğinde backend'e istek at
-  const handlePageChange = (newPage: number) => {
-    fetchEmployees(newPage, searchFilter, sortConfig.key || '', sortConfig.direction);
-  };
-
-  const getSortIcon = (columnKey: 'first_name' | 'last_name' | 'email' | 'hire_date') => {
+  const getSortIcon = (columnKey: 'first_name' | 'last_name') => {
     if (sortConfig.key !== columnKey) {
       return null;
     }
@@ -99,21 +86,35 @@ const EmployeesPage = () => {
   };
 
   const handleView = (employee: Employee) => {
-    console.log('View employee:', employee);
-    // TODO: Implement view modal
+    router.push(`/employees/${employee.id}`);
+  };
+
+  const handleAddNew = () => {
+    setSelectedEmployee(null);
+    setIsEdit(false);
+    setShowModal(true);
   };
 
   const handleEdit = (employee: Employee) => {
-    console.log('Edit employee:', employee);
-    // TODO: Implement edit modal
+    setSelectedEmployee(employee);
+    setIsEdit(true);
+    setShowModal(true);
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Bu çalışanı silmek istediğinizden emin misiniz?')) {
+  const handleDeleteClick = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setShowDeleteModal(true);
+  };
+
+  const handleDelete = async () => {
+    if (selectedEmployee) {
+      setDeleteLoading(true);
       try {
-        await employeeService.delete(id);
+        await employeeService.delete(selectedEmployee.id);
         toast.success('Çalışan başarıyla silindi');
-        fetchEmployees(pageData.page, searchFilter, sortConfig.key || '', sortConfig.direction);
+        fetchEmployees(currentPage, sortConfig.key || undefined, sortConfig.direction);
+        setShowDeleteModal(false);
+        setSelectedEmployee(null);
       } catch (error: any) {
         let errorMessage = '';
         
@@ -131,8 +132,29 @@ const EmployeesPage = () => {
         
         const translatedError = translateErrorMessage(errorMessage);
         toast.error(translatedError);
+      } finally {
+        setDeleteLoading(false);
       }
     }
+  };
+
+  const handleModalSave = () => {
+    fetchEmployees(currentPage, sortConfig.key || undefined, sortConfig.direction);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedEmployee(null);
+    setIsEdit(false);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+    setSelectedEmployee(null);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    fetchEmployees(newPage, sortConfig.key || undefined, sortConfig.direction);
   };
 
   return (
@@ -182,19 +204,6 @@ const EmployeesPage = () => {
           background-color: #f8f9fa;
           border-bottom: 2px solid #dee2e6;
         }
-        table thead tr:last-child td {
-          padding: 12px 16px;
-          background-color: white;
-          border-bottom: none;
-        }
-        @media (max-width: 768px) {
-          table thead tr:last-child td {
-            padding: 10px 8px;
-          }
-        }
-        table thead tr:last-child .filter-input {
-          width: 100%;
-        }
         /* Container responsive padding */
         .page-container {
           padding-left: 1.5rem;
@@ -235,25 +244,22 @@ const EmployeesPage = () => {
       `}</style>
 
       <Container fluid className="page-container">
-        {/* Page Heading */}
         <div className="page-heading-wrapper">
           <PageHeading 
             heading="Çalışanlar"
             showCreateButton={true}
-            showFilterButton={true}
+            showFilterButton={false}
             createButtonText="Yeni Çalışan"
-            onCreate={() => {
-              // TODO: Implement create modal
-            }}
-            onToggleFilter={() => setShowFilters(!showFilters)}
+            onCreate={handleAddNew}
           />
         </div>
 
-        {/* Table Card */}
         <Row>
           <Col lg={12} md={12} sm={12}>
             <div className="table-wrapper">
               <Card className="border-0 shadow-sm position-relative">
+                <LoadingOverlay show={isLoading} message="Çalışanlar yükleniyor..." />
+                
                 <Card.Body className="p-0">
                   <div className="table-box">
                     <div className="table-responsive">
@@ -261,52 +267,18 @@ const EmployeesPage = () => {
                         <thead>
                           <tr>
                             <th>ID</th>
-                            <th
+                            <th 
                               onClick={() => handleSort('first_name')}
                               className="sortable-header"
                             >
                               Ad Soyad {getSortIcon('first_name')}
                             </th>
-                            <th
-                              onClick={() => handleSort('email')}
-                              className="sortable-header"
-                            >
-                              E-posta {getSortIcon('email')}
-                            </th>
-                            <th>Telefon</th>
-                            <th
-                              onClick={() => handleSort('hire_date')}
-                              className="sortable-header"
-                            >
-                              İşe Başlama {getSortIcon('hire_date')}
-                            </th>
-                            <th>İşlemler</th>
+                            <th>Çalıştığı Şirket</th>
+                            <th>Departman</th>
+                            <th>Manager</th>
+                            <th>Statü</th>
+                            <th></th>
                           </tr>
-                          {showFilters && (
-                            <tr>
-                              <td className="border-top">
-                              </td>
-                              <td className="border-top">
-                                <Form.Control
-                                  type="text"
-                                  placeholder="Ad, Soyad..."
-                                  value={searchFilter}
-                                  onChange={(e) => handleSearchChange(e.target.value)}
-                                  className="filter-input"
-                                  size="sm"
-                                  disabled={isLoading}
-                                />
-                              </td>
-                              <td className="border-top">
-                              </td>
-                              <td className="border-top">
-                              </td>
-                              <td className="border-top">
-                              </td>
-                              <td className="border-top">
-                              </td>
-                            </tr>
-                          )}
                         </thead>
                         <tbody>
                           {employees.length ? (
@@ -314,9 +286,12 @@ const EmployeesPage = () => {
                               <tr key={employee.id}>
                                 <td>{employee.id}</td>
                                 <td>{employee.first_name} {employee.last_name}</td>
-                                <td>{employee.email}</td>
-                                <td>{employee.phone || '-'}</td>
-                                <td>{employee.hire_date ? new Date(employee.hire_date).toLocaleDateString('tr-TR') : '-'}</td>
+                                <td>{employee.work_information?.company_name || '-'}</td>
+                                <td>{employee.work_information?.department_name || '-'}</td>
+                                <td>{employee.work_information?.manager || '-'}</td>
+                                <td>
+                                  <Badge bg="success">Aktif</Badge>
+                                </td>
                                 <td>
                                   <Button
                                     variant="outline-info"
@@ -339,7 +314,7 @@ const EmployeesPage = () => {
                                   <Button
                                     variant="outline-danger"
                                     size="sm"
-                                    onClick={() => handleDelete(employee.id)}
+                                    onClick={() => handleDeleteClick(employee)}
                                     disabled={isLoading}
                                   >
                                     <Trash2 size={14} />
@@ -348,11 +323,13 @@ const EmployeesPage = () => {
                               </tr>
                             ))
                           ) : (
-                            <tr>
-                              <td colSpan={6} className="text-center py-4">
-                                {isLoading ? 'Yükleniyor...' : 'Veri bulunamadı'}
-                              </td>
-                            </tr>
+                            !isLoading && (
+                              <tr>
+                                <td colSpan={7} className="text-center py-4">
+                                  Veri bulunamadı
+                                </td>
+                              </tr>
+                            )
                           )}
                         </tbody>
                       </Table>
@@ -364,20 +341,36 @@ const EmployeesPage = () => {
           </Col>
         </Row>
 
-        {!isLoading && (
+        {totalPages > 1 && !isLoading && (
           <Row className="mt-4">
             <Col lg={12} md={12} sm={12}>
               <div className="px-3">
                 <Pagination
-                  currentPage={pageData.page}
-                  totalPages={pageData.total_pages}
-                  totalItems={pageData.total}
-                  itemsPerPage={pageData.limit}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={totalItems}
+                  itemsPerPage={itemsPerPage}
                   onPageChange={handlePageChange}
                 />
               </div>
             </Col>
           </Row>
+        )}
+
+        <EmployeeModal
+          show={showModal}
+          onHide={handleCloseModal}
+          onSave={handleModalSave}
+          employee={selectedEmployee}
+          isEdit={isEdit}
+        />
+
+        {showDeleteModal && (
+          <DeleteModal
+            onClose={handleCloseDeleteModal}
+            onHandleDelete={handleDelete}
+            loading={deleteLoading}
+          />
         )}
       </Container>
     </>

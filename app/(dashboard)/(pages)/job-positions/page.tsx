@@ -41,7 +41,7 @@ const JobPositionsPage = () => {
       
       const response = await jobPositionService.getAll({ 
         page, 
-        size: itemsPerPage,
+        limit: itemsPerPage,
         sort: sortKey,
         direction: sortDir
       });

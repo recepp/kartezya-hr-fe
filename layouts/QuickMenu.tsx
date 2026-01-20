@@ -5,6 +5,7 @@ import {
     Dropdown,
     ListGroup,
 } from 'react-bootstrap';
+import { User } from 'react-feather';
 import useMounted from '@/hooks/useMounted';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -32,7 +33,30 @@ const QuickMenu = () => {
                         className="rounded-circle"
                         id="dropdownUser">
                         <div className="avatar avatar-md avatar-indicators">
-                            <Image alt="avatar" src='/images/avatar/avatar.png' className="rounded-circle" />
+                            {user?.avatar ? (
+                                <Image 
+                                    alt="avatar" 
+                                    src={user.avatar} 
+                                    className="rounded-circle" 
+                                    width={40}
+                                    height={40}
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                />
+                            ) : (
+                                <div 
+                                    className="rounded-circle d-flex align-items-center justify-content-center"
+                                    style={{
+                                        width: '40px',
+                                        height: '40px',
+                                        backgroundColor: '#e9ecef',
+                                        color: '#6c757d'
+                                    }}
+                                >
+                                    <User size={24} />
+                                </div>
+                            )}
                         </div>
                     </Dropdown.Toggle>
                     <Dropdown.Menu
@@ -66,7 +90,30 @@ const QuickMenu = () => {
                         className="rounded-circle"
                         id="dropdownUser">
                         <div className="avatar avatar-md avatar-indicators">
-                            <Image alt="avatar" src='/images/avatar/avatar.png' className="rounded-circle" />
+                            {user?.avatar ? (
+                                <Image 
+                                    alt="avatar" 
+                                    src={user.avatar} 
+                                    className="rounded-circle" 
+                                    width={40}
+                                    height={40}
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                />
+                            ) : (
+                                <div 
+                                    className="rounded-circle d-flex align-items-center justify-content-center"
+                                    style={{
+                                        width: '40px',
+                                        height: '40px',
+                                        backgroundColor: '#e9ecef',
+                                        color: '#6c757d'
+                                    }}
+                                >
+                                    <User size={24} />
+                                </div>
+                            )}
                         </div>
                     </Dropdown.Toggle>
                     <Dropdown.Menu
