@@ -2,7 +2,6 @@ import { HR_ENDPOINTS } from '@/contants/urls';
 import axiosInstance from '@/helpers/api/axiosInstance';
 import { getErrorMessage } from '@/helpers/HelperUtils';
 import { getAvatarByUserId } from '@/helpers/avatarUtils';
-import { toast } from 'react-toastify';
 
 export interface LoginRequest {
   email: string;
@@ -60,22 +59,14 @@ const deleteCookie = (name: string) => {
 
 export const authService = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    console.log('Auth service login called with:', { email: credentials.email, password: '***' });
     try {
       const response = await axiosInstance.post(HR_ENDPOINTS.AUTH.LOGIN, credentials);
-      console.log('Raw axios response:', response);
       
       const data = response.data;
-      console.log('Full response data:', data);
-      console.log('Response data.data:', data.data);
-      console.log('Response data.data.user:', data.data?.user);
-      console.log('User roles:', data.data?.user?.roles);
       
       // Backend response yapısı: { success, data: { token, user: { id, email, roles, firstName, lastName } } }
       if (data.success && data.data?.token && data.data?.user) {
         let user = data.data.user;
-        console.log('User object:', user);
-        console.log('User roles array:', user.roles);
         
         // Assign avatar based on user ID
         user.avatar = getAvatarByUserId(user.id);
@@ -84,9 +75,7 @@ export const authService = {
         localStorage.setItem('hr_auth_token', data.data.token);
         localStorage.setItem('hr_user_profile', JSON.stringify(user));
         setCookie('hr_auth_token', data.data.token, 7);
-        
-        console.log('Stored in localStorage - hr_user_profile:', localStorage.getItem('hr_user_profile'));
-        
+                
         return {
           success: true,
           data: {
@@ -98,7 +87,6 @@ export const authService = {
       
       throw new Error('Invalid login response format');
     } catch (error: any) {
-      console.error('Auth service error:', error);
       
       let errorMessage = getErrorMessage(error);
       if (error.response && error.response.status === 401) {
@@ -124,7 +112,6 @@ export const authService = {
       localStorage.setItem('hr_user_profile', JSON.stringify(profile));
       return profile;
     } catch (error) {
-      toast.error(getErrorMessage(error));
       throw error;
     }
   },
@@ -133,7 +120,6 @@ export const authService = {
     try {
       await axiosInstance.post(HR_ENDPOINTS.AUTH.LOGOUT);
     } catch (error) {
-      console.error('Logout error:', error);
     } finally {
       // Clear all storage
       localStorage.removeItem('hr_auth_token');

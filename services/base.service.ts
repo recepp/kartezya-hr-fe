@@ -1,5 +1,4 @@
 import axiosInstance from '@/helpers/api/axiosInstance';
-import { getErrorMessage } from '@/helpers/HelperUtils';
 import { PagedResponse as PaginatedResponse } from '@/models/common/http.model';
 
 export interface APIResponse<T = any> {

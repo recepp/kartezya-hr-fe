@@ -1,7 +1,5 @@
-import { BaseService, APIResponse, PaginatedResponse } from './base.service';
+import {  APIResponse } from './base.service';
 import axiosInstance from '@/helpers/api/axiosInstance';
-import { getErrorMessage } from '@/helpers/HelperUtils';
-import { toast } from 'react-toastify';
 
 const DASHBOARD_ENDPOINTS = {
   DATA: '/dashboard/data',
@@ -34,15 +32,12 @@ export interface CompanyDepartmentChartData {
 }
 
 class DashboardService {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   async getDashboardData(): Promise<APIResponse<DashboardData>> {
     try {
       const response = await axiosInstance.get(`${DASHBOARD_ENDPOINTS.DATA}`);
       return response.data;
     } catch (error) {
-      const errorMsg = getErrorMessage(error);
-      toast.error(errorMsg);
       throw error;
     }
   }
@@ -52,8 +47,6 @@ class DashboardService {
       const response = await axiosInstance.get(`${DASHBOARD_ENDPOINTS.EMPLOYEES_BY_GENDER}`);
       return response.data;
     } catch (error) {
-      const errorMsg = getErrorMessage(error);
-      toast.error(errorMsg);
       throw error;
     }
   }
@@ -63,8 +56,6 @@ class DashboardService {
       const response = await axiosInstance.get(`${DASHBOARD_ENDPOINTS.EMPLOYEES_BY_POSITION}`);
       return response.data;
     } catch (error) {
-      const errorMsg = getErrorMessage(error);
-      toast.error(errorMsg);
       throw error;
     }
   }
@@ -74,8 +65,6 @@ class DashboardService {
       const response = await axiosInstance.get(`${DASHBOARD_ENDPOINTS.EMPLOYEES_BY_COMPANY_DEPARTMENT}`);
       return response.data;
     } catch (error) {
-      const errorMsg = getErrorMessage(error);
-      toast.error(errorMsg);
       throw error;
     }
   }

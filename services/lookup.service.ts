@@ -1,7 +1,6 @@
 import { HR_ENDPOINTS } from '@/contants/urls';
 import { APIResponse } from './base.service';
 import axiosInstance from '@/helpers/api/axiosInstance';
-import { getErrorMessage } from '@/helpers/HelperUtils';
 
 export interface CompanyLookup {
   id: number;
@@ -37,7 +36,6 @@ export const lookupService = {
       const response = await axiosInstance.get('/lookup/companies');
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch companies lookup:', getErrorMessage(error));
       throw error;
     }
   },
@@ -48,7 +46,6 @@ export const lookupService = {
       const response = await axiosInstance.get('/lookup/departments');
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch departments lookup:', getErrorMessage(error));
       throw error;
     }
   },
@@ -61,7 +58,6 @@ export const lookupService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch departments lookup:', getErrorMessage(error));
       throw error;
     }
   },
@@ -72,7 +68,6 @@ export const lookupService = {
       const response = await axiosInstance.get('/lookup/job-positions');
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch job positions lookup:', getErrorMessage(error));
       throw error;
     }
   },
@@ -83,7 +78,6 @@ export const lookupService = {
       const response = await axiosInstance.get('/lookup/leave-types');
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch leave types lookup:', getErrorMessage(error));
       throw error;
     }
   },
@@ -94,7 +88,6 @@ export const lookupService = {
       const response = await axiosInstance.get('/lookup/grades');
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch grades lookup:', getErrorMessage(error));
       throw error;
     }
   },

@@ -2,8 +2,6 @@ import { HR_ENDPOINTS } from '@/contants/urls';
 import { BaseService, APIResponse, PaginatedResponse, PaginationParams } from './base.service';
 import { LeaveRequest } from '@/models/hr/common.types';
 import axiosInstance from '@/helpers/api/axiosInstance';
-import { getErrorMessage } from '@/helpers/HelperUtils';
-import { toast } from 'react-toastify';
 
 class LeaveRequestService extends BaseService<LeaveRequest> {
   constructor() {
@@ -16,7 +14,6 @@ class LeaveRequestService extends BaseService<LeaveRequest> {
       const response = await axiosInstance.get(HR_ENDPOINTS.LEAVE.REQUESTS_ME, { params });
       return response.data;
     } catch (error) {
-      toast.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -37,7 +34,6 @@ class LeaveRequestService extends BaseService<LeaveRequest> {
       const response = await axiosInstance.post(`${this.baseUrl}/${id}/approve`, data);
       return response.data;
     } catch (error) {
-      toast.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -48,7 +44,6 @@ class LeaveRequestService extends BaseService<LeaveRequest> {
       const response = await axiosInstance.post(`${this.baseUrl}/${id}/reject`, data);
       return response.data;
     } catch (error) {
-      toast.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -59,7 +54,6 @@ class LeaveRequestService extends BaseService<LeaveRequest> {
       const response = await axiosInstance.post(`${this.baseUrl}/${id}/cancel`, data);
       return response.data;
     } catch (error) {
-      toast.error(getErrorMessage(error));
       throw error;
     }
   }

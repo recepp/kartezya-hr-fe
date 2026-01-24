@@ -1,8 +1,6 @@
 import { HR_ENDPOINTS } from '@/contants/urls';
 import { BaseService, APIResponse } from './base.service';
 import axiosInstance from '@/helpers/api/axiosInstance';
-import { getErrorMessage } from '@/helpers/HelperUtils';
-import { toast } from 'react-toastify';
 
 export interface WorkInformation {
   id: number;
@@ -60,7 +58,6 @@ class WorkInformationService extends BaseService<WorkInformation> {
       const response = await axiosInstance.get(HR_ENDPOINTS.WORK_INFORMATION_ME);
       return response.data;
     } catch (error) {
-      toast.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -75,7 +72,6 @@ class WorkInformationService extends BaseService<WorkInformation> {
       });
       return response.data;
     } catch (error) {
-      toast.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -85,7 +81,6 @@ class WorkInformationService extends BaseService<WorkInformation> {
       const response = await axiosInstance.post(this.baseUrl, data);
       return response.data;
     } catch (error) {
-      toast.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -95,7 +90,6 @@ class WorkInformationService extends BaseService<WorkInformation> {
       const response = await axiosInstance.put(`${this.baseUrl}/${id}`, data);
       return response.data;
     } catch (error) {
-      toast.error(getErrorMessage(error));
       throw error;
     }
   }
@@ -105,7 +99,6 @@ class WorkInformationService extends BaseService<WorkInformation> {
       const response = await axiosInstance.delete(`${this.baseUrl}/${id}`);
       return response.data;
     } catch (error) {
-      toast.error(getErrorMessage(error));
       throw error;
     }
   }
