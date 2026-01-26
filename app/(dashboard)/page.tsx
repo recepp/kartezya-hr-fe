@@ -230,6 +230,73 @@ const Home = () => {
                         </Col>
                     </Row>
 
+                    {/* Ne zamandır Bizimlesin ve Çalışan Kartı */}
+                    <Row className="mb-4">
+
+                        {/* Çalışan Kartı */}
+                        <Col xl={6} lg={6} md={12} xs={12} className="mb-6">
+                            <Card className="border-0 h-100" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
+                                <Card.Body className="text-white">
+                                    <div className="d-flex justify-content-between align-items-center mb-4">
+                                        <div>
+                                            <h5 className="mb-0 text-white-50">Çalışan Kartı</h5>
+                                        </div>
+                                        <div style={{ fontSize: '2.5rem' }}>👤</div>
+                                    </div>
+                                    <div className="row">
+                                        <Col md={6} className="mb-3">
+                                            <h6 className="text-white-50 mb-1">Ad Soyad</h6>
+                                            <p className="mb-0 fw-bold text-white">{employeeProfile?.first_name} {employeeProfile?.last_name}</p>
+                                        </Col>
+                                        <Col md={6} className="mb-3">
+                                            <h6 className="text-white-50 mb-1">Şirket E-postası</h6>
+                                            <p className="mb-0 text-white-75">{employeeProfile?.company_email || 'N/A'}</p>
+                                        </Col>
+                                        <Col md={6} className="mb-3">
+                                            <h6 className="text-white-50 mb-1">İşe Başlama Tarihi</h6>
+                                            <p className="mb-0 text-white-75">{employeeProfile?.hire_date ? formatDate(employeeProfile.hire_date) : 'N/A'}</p>
+                                        </Col>
+                                        <Col md={6} className="mb-3">
+                                            <h6 className="text-white-50 mb-1">Çalışılan Şirket</h6>
+                                            <p className="mb-0 text-white-75">{employeeProfile?.work_information && employeeProfile.work_information.length > 0 ? employeeProfile.work_information[0]?.company_name : 'N/A'}</p>
+                                        </Col>
+                                        <Col md={6} className="mb-3">
+                                            <h6 className="text-white-50 mb-1">Departman</h6>
+                                            <p className="mb-0 text-white-75">{employeeProfile?.work_information && employeeProfile.work_information.length > 0 ? employeeProfile.work_information[0]?.department_name : 'N/A'}</p>
+                                        </Col>
+                                        <Col md={6} className="mb-3">
+                                            <h6 className="text-white-50 mb-1">Pozisyon</h6>
+                                            <p className="mb-0 text-white-75">{employeeProfile?.work_information && employeeProfile.work_information.length > 0 ? employeeProfile.work_information[0]?.job_title : 'N/A'}</p>
+                                        </Col>
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                        {/* Ne zamandır Bizimlesin */}
+                        <Col xl={6} lg={6} md={12} xs={12} className="mb-6">
+                            <Card className="border-0 h-100" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                                <Card.Body className="text-white">
+                                    <div className="d-flex justify-content-between align-items-center mb-4">
+                                        <div>
+                                            <h5 className="mb-0 text-white-50">Ne zamandır Bizimlesin?</h5>
+                                        </div>
+                                        <div style={{ fontSize: '2.5rem' }}>🎉</div>
+                                    </div>
+                                    <div>
+                                        <h1 className="fw-bold mb-2">{tenure.text}</h1>
+                                        <p className="mb-0 text-white-50">
+                                            <i className="fe fe-calendar me-2"></i>
+                                            İşe başlama: {employeeProfile?.hire_date ? formatDate(employeeProfile.hire_date) : 'N/A'}
+                                        </p>
+                                        <p className="mt-3 mb-0 text-white-75">
+                                            Başarılı bir yolculuğun parçası olduğun için teşekkür ederiz! 🙏
+                                        </p>
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+                    
                     {/* Statistik Kartları */}
                     <Row className="mb-4">
                         {/* İzin Bakiyesi */}
@@ -375,73 +442,6 @@ const Home = () => {
                                                 </p>
                                             </>
                                         )}
-                                    </div>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
-
-                    {/* Ne zamandır Bizimlesin ve Çalışan Kartı */}
-                    <Row className="mb-4">
-
-                        {/* Çalışan Kartı */}
-                        <Col xl={6} lg={6} md={12} xs={12} className="mb-6">
-                            <Card className="border-0 h-100" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
-                                <Card.Body className="text-white">
-                                    <div className="d-flex justify-content-between align-items-center mb-4">
-                                        <div>
-                                            <h5 className="mb-0 text-white-50">Çalışan Kartı</h5>
-                                        </div>
-                                        <div style={{ fontSize: '2.5rem' }}>👤</div>
-                                    </div>
-                                    <div className="row">
-                                        <Col md={6} className="mb-3">
-                                            <h6 className="text-white-50 mb-1">Ad Soyad</h6>
-                                            <p className="mb-0 fw-bold text-white">{employeeProfile?.first_name} {employeeProfile?.last_name}</p>
-                                        </Col>
-                                        <Col md={6} className="mb-3">
-                                            <h6 className="text-white-50 mb-1">Şirket E-postası</h6>
-                                            <p className="mb-0 text-white-75">{employeeProfile?.company_email || 'N/A'}</p>
-                                        </Col>
-                                        <Col md={6} className="mb-3">
-                                            <h6 className="text-white-50 mb-1">İşe Başlama Tarihi</h6>
-                                            <p className="mb-0 text-white-75">{employeeProfile?.hire_date ? formatDate(employeeProfile.hire_date) : 'N/A'}</p>
-                                        </Col>
-                                        <Col md={6} className="mb-3">
-                                            <h6 className="text-white-50 mb-1">Çalışılan Şirket</h6>
-                                            <p className="mb-0 text-white-75">{employeeProfile?.work_information && employeeProfile.work_information.length > 0 ? employeeProfile.work_information[0]?.company_name : 'N/A'}</p>
-                                        </Col>
-                                        <Col md={6} className="mb-3">
-                                            <h6 className="text-white-50 mb-1">Departman</h6>
-                                            <p className="mb-0 text-white-75">{employeeProfile?.work_information && employeeProfile.work_information.length > 0 ? employeeProfile.work_information[0]?.department_name : 'N/A'}</p>
-                                        </Col>
-                                        <Col md={6} className="mb-3">
-                                            <h6 className="text-white-50 mb-1">Pozisyon</h6>
-                                            <p className="mb-0 text-white-75">{employeeProfile?.work_information && employeeProfile.work_information.length > 0 ? employeeProfile.work_information[0]?.job_title : 'N/A'}</p>
-                                        </Col>
-                                    </div>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                        {/* Ne zamandır Bizimlesin */}
-                        <Col xl={6} lg={6} md={12} xs={12} className="mb-6">
-                            <Card className="border-0 h-100" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-                                <Card.Body className="text-white">
-                                    <div className="d-flex justify-content-between align-items-center mb-4">
-                                        <div>
-                                            <h5 className="mb-0 text-white-50">Ne zamandır Bizimlesin?</h5>
-                                        </div>
-                                        <div style={{ fontSize: '2.5rem' }}>🎉</div>
-                                    </div>
-                                    <div>
-                                        <h1 className="fw-bold mb-2">{tenure.text}</h1>
-                                        <p className="mb-0 text-white-50">
-                                            <i className="fe fe-calendar me-2"></i>
-                                            İşe başlama: {employeeProfile?.hire_date ? formatDate(employeeProfile.hire_date) : 'N/A'}
-                                        </p>
-                                        <p className="mt-3 mb-0 text-white-75">
-                                            Başarılı bir yolculuğun parçası olduğun için teşekkür ederiz! 🙏
-                                        </p>
                                     </div>
                                 </Card.Body>
                             </Card>
