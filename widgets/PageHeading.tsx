@@ -1,4 +1,3 @@
-// import node module libraries
 import { Row, Col, Button } from "react-bootstrap";
 
 type IProps = {
