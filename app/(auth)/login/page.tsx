@@ -1,69 +1,98 @@
 "use client";
 import { Row, Col, Card, Form, Button, Alert } from "react-bootstrap";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import useMounted from "@/hooks/useMounted";
-import { useAuth } from "@/hooks/useAuth";
-import { Formik } from "formik";
-import * as Yup from "yup";
+import { authService, LoginRequest } from "@/services/auth.service";
 import FormTextField from "@/components/FormTextField";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
 interface FormData {
   email: string;
   password: string;
 }
 
-const SignIn = () => {
+interface FormErrors {
+  email?: string;
+  password?: string;
+}
+
+const Login = () => {
   const hasMounted = useMounted();
-  const { login, isLoading } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [error, setError] = useState<string | null>(null);
-
-  // Get callback URL from search params
-  const callbackUrl = searchParams?.get('callbackUrl') || '/';
-
-  // Check if user is already logged in
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('hr_auth_token');
-      if (token) {
-        router.replace(callbackUrl);
-      }
-    }
-  }, [callbackUrl, router]);
-
-  const initialValues: FormData = {
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
+
+  const validateField = (name: string, value: string): string | undefined => {
+    switch (name) {
+      case 'email':
+        if (!value) return "E-posta adresi zorunludur";
+        if (!/\S+@\S+\.\S+/.test(value)) return "Geçerli bir e-posta adresi giriniz";
+        break;
+      case 'password':
+        if (!value) return "Şifre zorunludur";
+        break;
+    }
+    return undefined;
   };
 
-  const validationSchema = Yup.object().shape({
-    email: Yup.string()
-      .required("E-posta adresi zorunludur")
-      .email("Geçersiz E-posta adresi"),
-    password: Yup.string().required("Şifre zorunludur"),
-  });
-
-  const handleSubmit = async (values: FormData) => {
-    const { email, password } = values;
-    console.log('Login attempt started with:', { email, password: '***' });
-    try {
-      setError(null);
-      const response = await login({ email, password });
-      console.log('Login response:', response);
-      if (response.success) {
-        console.log('Login successful, redirecting to:', callbackUrl);
-        // Redirect to callback URL or home page
-        router.replace(callbackUrl);
-      }
-    } catch (err: any) {
-      console.error('Login error caught:', err);
-      console.error('Error message:', err.message);
-      console.error('Original error:', err.originalError);
-      setError(err.message || "Giriş yapılırken bir hata oluştu");
+  const handleInputChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[name as keyof FormErrors]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }));
     }
   };
+
+  const handleInputBlur = (name: string) => {
+    setTouched(prev => ({ ...prev, [name]: true }));
+    const error = validateField(name, formData[name as keyof FormData]);
+    setErrors(prev => ({ ...prev, [name]: error }));
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+    newErrors.email = validateField('email', formData.email);
+    newErrors.password = validateField('password', formData.password);
+    
+    setErrors(newErrors);
+    setTouched({ email: true, password: true });
+    
+    return !newErrors.email && !newErrors.password;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+
+    try {
+      setIsLoading(true);
+      
+      const request: LoginRequest = {
+        email: formData.email,
+        password: formData.password
+      };
+
+      const response = await authService.login(request);
+
+      if (response.success) {
+        router.replace('/');
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Giriş yapılırken bir hata oluştu");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const isFormValid = !errors.email && !errors.password && formData.email && formData.password;
 
   return (
     <Row className="align-items-center justify-content-center g-0 min-vh-100">
@@ -71,50 +100,51 @@ const SignIn = () => {
         <Card className="smooth-shadow-md">
           <Card.Body className="p-6">
             <div className="d-flex justify-content-center align-items-center mb-6">
-              <p className="h3 fw-bold">Kartezya HR - Giriş Yap</p>
+              <p className="h3 fw-bold">Kartezya HR</p>
             </div>
-            {error && (
-              <Alert variant="danger" className="mb-4">
-                {error}
-              </Alert>
-            )}
+
             {hasMounted && (
-              <Formik
-                initialValues={initialValues}
-                validationSchema={validationSchema}
-                onSubmit={handleSubmit}
-              >
-                {({ handleSubmit, isValid, isSubmitting }) => (
-                  <Form noValidate onSubmit={handleSubmit}>
-                    <FormTextField
-                      as={Col}
-                      md={12}
-                      controlId="validationEmail"
-                      label="E-posta Adresi"
-                      type="text"
-                      name="email"
-                    />
-                    <FormTextField
-                      as={Col}
-                      md={12}
-                      controlId="validationPassword"
-                      label="Şifreniz"
-                      type="password"
-                      name="password"
-                    />
-                    <div className="d-grid">
-                      <Button
-                        disabled={!isValid || isSubmitting || isLoading}
-                        variant="primary"
-                        as="input"
-                        size="lg"
-                        type="submit"
-                        value={isSubmitting || isLoading ? "Giriş Yapılıyor..." : "Giriş Yap"}
-                      />
-                    </div>
-                  </Form>
-                )}
-              </Formik>
+              <Form noValidate onSubmit={handleSubmit}>
+                <FormTextField
+                  as={Col}
+                  md={12}
+                  controlId="validationEmail"
+                  label="E-posta"
+                  type="email"
+                  name="email"
+                  placeholder="E-posta adresinizi giriniz"
+                  value={formData.email}
+                  onChange={(name, value) => handleInputChange(name, value)}
+                  onBlur={(name) => handleInputBlur(name)}
+                  error={touched.email ? errors.email : undefined}
+                  required
+                />
+                
+                <FormTextField
+                  as={Col}
+                  md={12}
+                  controlId="validationPassword"
+                  label="Şifre"
+                  type="password"
+                  name="password"
+                  placeholder="Şifrenizi giriniz"
+                  value={formData.password}
+                  onChange={(name, value) => handleInputChange(name, value)}
+                  onBlur={(name) => handleInputBlur(name)}
+                  error={touched.password ? errors.password : undefined}
+                  required
+                />
+
+                <div className="d-grid mt-4">
+                  <Button
+                    disabled={!isFormValid || isLoading}
+                    variant="primary"
+                    type="submit"
+                  >
+                    {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
+                  </Button>
+                </div>
+              </Form>
             )}
           </Card.Body>
         </Card>
@@ -123,4 +153,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default Login;

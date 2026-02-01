@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-toastify';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import FormDateField from '@/components/FormDateField';
+import FormSelectField from '@/components/FormSelectField';
 
 interface LeaveRequestModalProps {
   show: boolean;
@@ -259,7 +260,7 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
               <Form.Label>
                 İzin Türü <span className="text-danger">*</span>
               </Form.Label>
-              <Form.Select
+              <FormSelectField
                 name="leaveTypeId"
                 value={formData.leaveTypeId}
                 onChange={(e: any) => {
@@ -282,7 +283,7 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
                     {type.name}
                   </option>
                 ))}
-              </Form.Select>
+              </FormSelectField>
               {fieldErrors.leaveTypeId && (
                 <div className="text-danger mt-1" style={{ fontSize: '0.875rem' }}>
                   {fieldErrors.leaveTypeId}
@@ -358,7 +359,7 @@ const LeaveRequestModal: React.FC<LeaveRequestModalProps> = ({
             </Form.Group>
           </Modal.Body>
 
-          <Modal.Footer className="pt-0">
+          <Modal.Footer>
             <Button variant="secondary" onClick={onHide} disabled={loading}>
               İptal
             </Button>

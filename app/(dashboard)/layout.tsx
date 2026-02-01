@@ -1,7 +1,6 @@
 'use client';
 
 import 'styles/theme.scss';
-import '@nosferatu500/react-sortable-tree/style.css';
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import DashboardWrapper from './dashboard-wrapper';

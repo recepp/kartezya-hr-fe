@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { Row, Col, Card, Table, Button, Container } from 'react-bootstrap';
+import { useRouter } from 'next/navigation';
+import { Row, Col, Card, Table, Button, Badge, Container } from 'react-bootstrap';
 import { companyService } from '@/services';
 import { Company } from '@/models/hr/common.types';
 import { PageHeading } from '@/widgets';
@@ -8,10 +9,11 @@ import Pagination from '@/components/Pagination';
 import CompanyModal from '@/components/modals/CompanyModal';
 import DeleteModal from '@/components/DeleteModal';
 import LoadingOverlay from '@/components/LoadingOverlay';
-import { Plus, Edit, Trash2, ChevronUp, ChevronDown } from 'react-feather';
+import { Edit, Trash2, Eye, ChevronUp, ChevronDown } from 'react-feather';
 import { toast } from 'react-toastify';
 import { translateErrorMessage } from '@/helpers/ErrorUtils';
 import '@/styles/table-list.scss';
+import '@/styles/components/table-common.scss';
 
 const CompaniesPage = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -28,12 +30,14 @@ const CompaniesPage = () => {
   const [totalItems, setTotalItems] = useState(0);
 
   const [sortConfig, setSortConfig] = useState<{
-    key: 'name' | 'email' | 'phone' | null;
+    key: 'name' | null;
     direction: 'ASC' | 'DESC';
   }>({
     key: null,
     direction: 'ASC'
   });
+
+  const router = useRouter();
 
   const fetchCompanies = async (page: number = 1, sortKey?: string, sortDir?: 'ASC' | 'DESC') => {
     try {
@@ -64,7 +68,7 @@ const CompaniesPage = () => {
     fetchCompanies(1);
   }, []);
 
-  const handleSort = (key: 'name' | 'email' | 'phone') => {
+  const handleSort = (key: 'name') => {
     let direction: 'ASC' | 'DESC' = 'ASC';
     if (sortConfig.key === key && sortConfig.direction === 'ASC') {
       direction = 'DESC';
@@ -73,13 +77,17 @@ const CompaniesPage = () => {
     fetchCompanies(1, key, direction);
   };
 
-  const getSortIcon = (columnKey: 'name' | 'email' | 'phone') => {
+  const getSortIcon = (columnKey: 'name') => {
     if (sortConfig.key !== columnKey) {
       return null;
     }
     return sortConfig.direction === 'ASC' ?
-      <ChevronUp size={16} className="ms-1" style={{ display: 'inline' }} /> :
-      <ChevronDown size={16} className="ms-1" style={{ display: 'inline' }} />;
+      <ChevronUp size={16} className="ms-1" /> :
+      <ChevronDown size={16} className="ms-1" />;
+  };
+
+  const handleView = (company: Company) => {
+    router.push(`/companies/${company.id}`);
   };
 
   const handleAddNew = () => {
@@ -110,7 +118,7 @@ const CompaniesPage = () => {
         setSelectedCompany(null);
       } catch (error: any) {
         let errorMessage = '';
-
+        
         if (error.response?.data?.message) {
           errorMessage = error.response.data.message;
         } else if (error.response?.data?.error) {
@@ -122,7 +130,7 @@ const CompaniesPage = () => {
         } else {
           errorMessage = 'Silme işlemi sırasında bir hata oluştu';
         }
-
+        
         const translatedError = translateErrorMessage(errorMessage);
         toast.error(translatedError);
       } finally {
@@ -152,91 +160,9 @@ const CompaniesPage = () => {
 
   return (
     <>
-      <style jsx global>{`
-        #page-content {
-          background-color: #f5f7fa;
-          min-height: 100vh;
-        }
-      `}</style>
-
-      <style jsx>{`
-        .sortable-header {
-          transition: background-color 0.2s ease;
-          cursor: pointer;
-          user-select: none;
-        }
-        .sortable-header:hover {
-          background-color: rgba(98, 75, 255, 0.1) !important;
-        }
-        .table-box {
-          border-radius: 8px;
-          overflow: hidden;
-          border: none;
-          margin: 0;
-        }
-        .table-responsive {
-          border-radius: 0;
-          margin-bottom: 0;
-        }
-        table {
-          margin-bottom: 0;
-          table-layout: fixed;
-          width: 100%;
-        }
-        table td, table th {
-          padding: 12px 16px;
-          vertical-align: middle;
-          word-wrap: break-word;
-        }
-        @media (max-width: 768px) {
-          table td, table th {
-            padding: 10px 8px;
-          }
-        }
-        table thead tr {
-          background-color: #f8f9fa;
-          border-bottom: 2px solid #dee2e6;
-        }
-        /* Container responsive padding */
-        .page-container {
-          padding-left: 1.5rem;
-          padding-right: 1.5rem;
-          padding-top: 1.5rem;
-          padding-bottom: 1.5rem;
-        }
-        @media (max-width: 768px) {
-          .page-container {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-          }
-        }
-        /* Inner divs responsive padding */
-        .table-wrapper {
-          padding-left: 0;
-          padding-right: 0;
-        }
-        @media (min-width: 769px) {
-          .table-wrapper {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-          }
-        }
-        /* Page heading wrapper responsive padding */
-        .page-heading-wrapper {
-          padding-left: 0;
-          padding-right: 0;
-        }
-        @media (min-width: 769px) {
-          .page-heading-wrapper {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-          }
-        }
-      `}</style>
-
-      <Container fluid className="page-container">
+      <Container fluid className="page-container">      
+        <LoadingOverlay show={isLoading} message="Şirketler yükleniyor..." />
+  
         <div className="page-heading-wrapper">
           <PageHeading 
             heading="Şirketler"
@@ -251,49 +177,52 @@ const CompaniesPage = () => {
           <Col lg={12} md={12} sm={12}>
             <div className="table-wrapper">
               <Card className="border-0 shadow-sm position-relative">
-                <LoadingOverlay show={isLoading} message="Şirketler yükleniyor..." />
-
                 <Card.Body className="p-0">
                   <div className="table-box">
                     <div className="table-responsive">
                       <Table hover className="mb-0">
                         <thead>
                           <tr>
-                            <th
+                            <th>ID</th>
+                            <th 
                               onClick={() => handleSort('name')}
                               className="sortable-header"
                             >
                               Şirket Adı {getSortIcon('name')}
                             </th>
-                            <th
-                              onClick={() => handleSort('email')}
-                              className="sortable-header"
-                            >
-                              E-posta {getSortIcon('email')}
-                            </th>
-                            <th
-                              onClick={() => handleSort('phone')}
-                              className="sortable-header"
-                            >
-                              Telefon {getSortIcon('phone')}
-                            </th>
-                            <th>İşlemler</th>
+                            <th>E-posta</th>
+                            <th>Telefon</th>
+                            <th>Adres</th>
+                            <th>Statü</th>
+                            <th></th>
                           </tr>
                         </thead>
                         <tbody>
                           {companies.length ? (
                             companies.map((company: Company) => (
                               <tr key={company.id}>
+                                <td>{company.id}</td>
                                 <td>{company.name}</td>
                                 <td>{company.email || '-'}</td>
                                 <td>{company.phone || '-'}</td>
+                                <td>{company.address || '-'}</td>
                                 <td>
+                                  <Badge bg="success">Aktif</Badge>
+                                </td>
+                                <td>
+                                  <Button
+                                    variant="outline-info"
+                                    size="sm"
+                                    className="me-2"
+                                    onClick={() => handleView(company)}
+                                  >
+                                    <Eye size={14} />
+                                  </Button>
                                   <Button
                                     variant="outline-primary"
                                     size="sm"
                                     className="me-2"
                                     onClick={() => handleEdit(company)}
-                                    disabled={isLoading}
                                   >
                                     <Edit size={14} />
                                   </Button>
@@ -301,7 +230,6 @@ const CompaniesPage = () => {
                                     variant="outline-danger"
                                     size="sm"
                                     onClick={() => handleDeleteClick(company)}
-                                    disabled={isLoading}
                                   >
                                     <Trash2 size={14} />
                                   </Button>
@@ -309,13 +237,13 @@ const CompaniesPage = () => {
                               </tr>
                             ))
                           ) : (
-                            !isLoading && (
-                              <tr>
-                                <td colSpan={4} className="text-center py-4">
-                                  Veri bulunamadı
-                                </td>
-                              </tr>
-                            )
+                            <tr>
+                              <td colSpan={7} className="text-center py-4">
+                                <div className="text-muted">
+                                  <p className="mb-0">Henüz şirket bulunmuyor.</p>
+                                </div>
+                              </td>
+                            </tr>
                           )}
                         </tbody>
                       </Table>
@@ -327,34 +255,38 @@ const CompaniesPage = () => {
           </Col>
         </Row>
 
-        {totalPages > 1 && !isLoading && (
-          <Row className="mt-4">
-            <Col lg={12} md={12} sm={12}>
-              <div className="px-3">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  totalItems={totalItems}
-                  itemsPerPage={itemsPerPage}
-                  onPageChange={handlePageChange}
-                />
+        {totalPages > 1 && (
+          <Row className="mt-3">
+            <Col lg={12}>
+              <div className="table-wrapper">
+                <div className="d-flex justify-content-center">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
               </div>
             </Col>
           </Row>
         )}
 
+        {/* Company Modal */}
         <CompanyModal
           show={showModal}
+          isEdit={isEdit}
+          company={selectedCompany}
           onHide={handleCloseModal}
           onSave={handleModalSave}
-          company={selectedCompany}
-          isEdit={isEdit}
         />
 
+        {/* Delete Modal */}
         {showDeleteModal && (
           <DeleteModal
-            onClose={handleCloseDeleteModal}
+            title="Şirketi Sil"
+            message={`"${selectedCompany?.name}" şirketini silmek istediğinizden emin misiniz?`}
             onHandleDelete={handleDelete}
+            onClose={handleCloseDeleteModal}
             loading={deleteLoading}
           />
         )}

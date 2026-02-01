@@ -1,72 +1,77 @@
 import React from "react";
 import { Form, Col } from "react-bootstrap";
-import { Field, FieldProps } from "formik";
-import InputMask from "react-input-mask";
 
-type IProps = {
-    as?: typeof Col;
-    md?: number;
-    controlId?: string;
-    label?: string;
-    name: string;
-    type?: string;
-    disabled?: boolean;
-    mask?: string | (string | RegExp)[];
-    maskChar?: string;
+interface FormTextFieldProps {
+  as?: any;
+  md?: number;
+  controlId: string;
+  label: string;
+  type?: string;
+  name: string;
+  placeholder?: string;
+  value: string;
+  onChange: (name: string, value: string) => void;
+  onBlur?: (name: string) => void;
+  error?: string;
+  required?: boolean;
+  disabled?: boolean;
+  className?: string;
 }
 
-const FormTextField = ({
-    as,
-    md,
-    controlId,
-    label,
-    name,
-    type,
-    disabled = false,
-    mask,
-    maskChar = "_",
-}: IProps) => {
-    return (
-        <Field name={name}>
-            {({ field, form }: FieldProps) => {
-                const isInvalid = !!(form.touched[field.name] && form.errors[field.name]);
-                const errorMessage = form.errors[field.name] as string | undefined;
-                
-                return (
-                    <Form.Group as={as} md={md} controlId={controlId} className={`mb-3`}>
-                        {label && <Form.Label>{label}</Form.Label>}
-                        {mask ? (
-                            <InputMask
-                                mask={mask}
-                                maskChar={maskChar}
-                                {...field}
-                                disabled={disabled}
-                            >
-                                {(inputProps: any) => (
-                                    <Form.Control
-                                        {...inputProps}
-                                        type={type}
-                                        disabled={disabled}
-                                        isInvalid={isInvalid}
-                                    />
-                                )}
-                            </InputMask>
-                        ) : (
-                            <Form.Control
-                                {...field}
-                                type={type}
-                                disabled={disabled}
-                                isInvalid={isInvalid}
-                            />
-                        )}
-                        <Form.Control.Feedback type="invalid">
-                            {errorMessage}
-                        </Form.Control.Feedback>
-                    </Form.Group>
-                );
-            }}
-        </Field>
-    );
+const FormTextField: React.FC<FormTextFieldProps> = ({
+  as = Col,
+  md = 12,
+  controlId,
+  label,
+  type = "text",
+  name,
+  placeholder,
+  value,
+  onChange,
+  onBlur,
+  error,
+  required = false,
+  disabled = false,
+  className,
+  ...props
+}) => {
+  const Component = as;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(name, e.target.value);
+  };
+
+  const handleInputBlur = () => {
+    if (onBlur) {
+      onBlur(name);
+    }
+  };
+
+  return (
+    <Component md={md} className={className} {...props}>
+      <Form.Group className="mb-3" controlId={controlId}>
+        <Form.Label>
+          {label}
+          {required && <span className="text-danger ms-1">*</span>}
+        </Form.Label>
+        <Form.Control
+          type={type}
+          name={name}
+          placeholder={placeholder}
+          value={value}
+          onChange={handleInputChange}
+          onBlur={handleInputBlur}
+          disabled={disabled}
+          isInvalid={!!error}
+        />
+        {error && (
+          <Form.Control.Feedback type="invalid">
+            {error}
+          </Form.Control.Feedback>
+        )}
+      </Form.Group>
+    </Component>
+  );
 };
 
 export default FormTextField;

@@ -1,5 +1,5 @@
 'use client'
-import { Fragment, useContext, useMemo, useState, useCallback } from 'react';
+import { Fragment, useContext, useMemo, useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation'
 import { useMediaQuery } from 'react-responsive';

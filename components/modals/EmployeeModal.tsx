@@ -10,6 +10,7 @@ import { genderOptions, maritalStatusOptions, emergencyContactRelationOptions } 
 import { toast } from 'react-toastify';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import FormDateField from '@/components/FormDateField';
+import FormSelectField from '@/components/FormSelectField';
 
 interface EmployeeModalProps {
   show: boolean;
@@ -492,35 +493,35 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
               <Col md={6}>
                 <Form.Group>
                   <Form.Label>Cinsiyet</Form.Label>
-                  <Form.Select
+                  <FormSelectField
                     name="gender"
                     value={formData.gender}
                     onChange={handleInputChange}
                   >
-                    <option value="">Seçiniz</option>
-                    {genderOptions.map(option => (
+                    <option value="">Cinsiyet seçiniz</option>
+                    {genderOptions.map((option) => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
                     ))}
-                  </Form.Select>
+                  </FormSelectField>
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group>
                   <Form.Label>Medeni Durum</Form.Label>
-                  <Form.Select
+                  <FormSelectField
                     name="marital_status"
                     value={formData.marital_status}
                     onChange={handleInputChange}
                   >
-                    <option value="">Seçiniz</option>
-                    {maritalStatusOptions.map(option => (
+                    <option value="">Medeni durum seçiniz</option>
+                    {maritalStatusOptions.map((option) => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
                     ))}
-                  </Form.Select>
+                  </FormSelectField>
                 </Form.Group>
               </Col>
             </Row>
@@ -707,18 +708,18 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
               <Col md={6}>
                 <Form.Group>
                   <Form.Label>Grade</Form.Label>
-                  <Form.Select
+                  <FormSelectField
                     name="grade_id"
                     value={formData.grade_id}
                     onChange={handleInputChange}
                   >
-                    <option value="">Seçiniz</option>
-                    {grades.map(grade => (
+                    <option value="">Grade seçiniz</option>
+                    {grades.map((grade) => (
                       <option key={grade.id} value={grade.id.toString()}>
                         {grade.name}
                       </option>
                     ))}
-                  </Form.Select>
+                  </FormSelectField>
                 </Form.Group>
               </Col>
             </Row>
@@ -794,18 +795,18 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
               <Col md={4}>
                 <Form.Group>
                   <Form.Label>İlişki</Form.Label>
-                  <Form.Select
+                  <FormSelectField
                     name="emergency_contact_relation"
                     value={formData.emergency_contact_relation}
                     onChange={handleInputChange}
                   >
-                    <option value="">Seçiniz</option>
-                    {emergencyContactRelationOptions.map(option => (
+                    <option value="">İlişki seçiniz</option>
+                    {emergencyContactRelationOptions.map((option) => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
                     ))}
-                  </Form.Select>
+                  </FormSelectField>
                 </Form.Group>
               </Col>
             </Row>

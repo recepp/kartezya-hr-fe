@@ -3,44 +3,44 @@ import { Fragment, useState, useEffect } from "react";
 import { Container, Row, Col, Card, Spinner } from "react-bootstrap";
 import { dashboardService, DashboardData, GenderChartData, PositionChartData, CompanyDepartmentChartData } from "@/services/dashboard.service";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
 import { leaveRequestService } from "@/services/leave-request.service";
 import { leaveBalanceService } from "@/services/leave-balance.service";
 import { employeeService } from "@/services/employee.service";
 import { LeaveRequest, LeaveBalance } from "@/models/hr/common.types";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 // Helper function to format dates from API (ISO strings) or local format (number arrays)
 const formatDate = (date?: string | number[]): string => {
     if (!date) return "";
-    
+
     // Handle string dates (ISO format from API)
     if (typeof date === 'string') {
         const dateObj = new Date(date);
         if (isNaN(dateObj.getTime())) return "";
-        return dateObj.toLocaleDateString('tr-TR', { 
-            year: 'numeric', 
-            month: '2-digit', 
-            day: '2-digit' 
+        return dateObj.toLocaleDateString('tr-TR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
         });
     }
-    
+
     // Handle number array format
     if (Array.isArray(date) && date.length === 3) {
         const dateObj = new Date(date[0], date[1] - 1, date[2]);
-        return dateObj.toLocaleDateString('tr-TR', { 
-            year: 'numeric', 
-            month: '2-digit', 
-            day: '2-digit' 
+        return dateObj.toLocaleDateString('tr-TR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
         });
     }
-    
+
     return "";
 };
 
 const Home = () => {
     const { user } = useAuth();
-    const isEmployee = user?.roles?.includes('EMPLOYEE');
+    const isAdmin = user?.roles?.includes('ADMIN');
 
     // Admin/Manager state
     const [stats, setStats] = useState<DashboardData>({
@@ -71,13 +71,30 @@ const Home = () => {
 
     const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'];
 
+    const [initialized, setInitialized] = useState(false);
+
     useEffect(() => {
-        if (isEmployee) {
-            fetchEmployeeDashboardData();
-        } else {
-            fetchAllDashboardData();
+        // Sadece bir kez çalışsın
+        if (initialized) return;
+
+        const initializeDashboard = async () => {
+            setLoading(true);
+            setInitialized(true);
+
+            if (isAdmin) {
+                await fetchAllDashboardData();
+            } else {
+                await fetchEmployeeDashboardData();
+            }
+
+            setLoading(false);
+        };
+
+        // user bilgisi hazır olduğunda çalıştır
+        if (user) {
+            initializeDashboard();
         }
-    }, [isEmployee]);
+    }, [user, initialized, isAdmin]);
 
     // Admin/Manager dashboard veri yükleme
     const fetchAllDashboardData = async () => {
@@ -86,7 +103,7 @@ const Home = () => {
             setLoadingGenderData(true);
             setLoadingPositionData(true);
             setLoadingCompanyDeptData(true);
-            
+
             // Fetch main dashboard data
             try {
                 const mainResponse = await dashboardService.getDashboardData();
@@ -187,34 +204,34 @@ const Home = () => {
     };
 
     // EMPLOYEE Dashboard
-    if (isEmployee) {
+    if (!isAdmin) {
         // Tenure hesapla
         const calculateTenure = () => {
             if (!employeeProfile?.hire_date) return { years: 0, months: 0, days: 0, text: '' };
-            
+
             const hireDate = new Date(employeeProfile.hire_date);
             const today = new Date();
-            
+
             let years = today.getFullYear() - hireDate.getFullYear();
             let months = today.getMonth() - hireDate.getMonth();
             let days = today.getDate() - hireDate.getDate();
-            
+
             if (days < 0) {
                 months--;
                 const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
                 days += lastMonth.getDate();
             }
-            
+
             if (months < 0) {
                 years--;
                 months += 12;
             }
-            
+
             let text = '';
             if (years > 0) text += `${years} yıl `;
             if (months > 0) text += `${months} ay `;
             if (days > 0) text += `${days} gün`;
-            
+
             return { years, months, days, text: text.trim() || '0 gün' };
         };
 
@@ -222,7 +239,10 @@ const Home = () => {
 
         return (
             <Fragment>
+                {/* Full screen overlay when loading */}
                 <Container fluid className="px-6 py-4">
+                    <LoadingOverlay show={loading} message="Yükleniyor..." />
+
                     {/* Hoş Geldiniz Mesajı */}
                     <Row className="mb-4">
                         <Col lg={12} md={12} xs={12}>
@@ -232,7 +252,6 @@ const Home = () => {
 
                     {/* Ne zamandır Bizimlesin ve Çalışan Kartı */}
                     <Row className="mb-4">
-
                         {/* Çalışan Kartı */}
                         <Col xl={6} lg={6} md={12} xs={12} className="mb-6">
                             <Card className="border-0 h-100" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
@@ -272,6 +291,7 @@ const Home = () => {
                                 </Card.Body>
                             </Card>
                         </Col>
+
                         {/* Ne zamandır Bizimlesin */}
                         <Col xl={6} lg={6} md={12} xs={12} className="mb-6">
                             <Card className="border-0 h-100" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
@@ -312,25 +332,19 @@ const Home = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        {loadingLeaveBalance ? (
-                                            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60px' }}>
+                                        <h1 className="fw-bold">
+                                            {loadingLeaveBalance ? (
                                                 <Spinner animation="border" role="status" size="sm">
                                                     <span className="visually-hidden">Yükleniyor...</span>
                                                 </Spinner>
-                                            </div>
-                                        ) : leaveBalance ? (
-                                            <>
-                                                <h1 className="fw-bold">{leaveBalance.remaining_days || 0}</h1>
-                                                <p className="mb-0">
-                                                    <span className="text-success me-2">
-                                                        <i className="fe fe-calendar me-1"></i>
-                                                    </span>
-                                                    Kalan gün
-                                                </p>
-                                            </>
-                                        ) : (
-                                            <p className="text-muted">Bilgi yükleniyor...</p>
-                                        )}
+                                            ) : leaveBalance?.remaining_days || 0}
+                                        </h1>
+                                        <p className="mb-0">
+                                            <span className="text-success me-2">
+                                                <i className="fe fe-calendar me-1"></i>
+                                            </span>
+                                            Kalan gün
+                                        </p>
                                     </div>
                                 </Card.Body>
                             </Card>
@@ -349,25 +363,19 @@ const Home = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        {loadingLeaveRequests ? (
-                                            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60px' }}>
+                                        <h1 className="fw-bold">
+                                            {loadingLeaveRequests ? (
                                                 <Spinner animation="border" role="status" size="sm">
                                                     <span className="visually-hidden">Yükleniyor...</span>
                                                 </Spinner>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <h1 className="fw-bold">
-                                                    {myLeaveRequests.filter(r => r.status === 'PENDING').length}
-                                                </h1>
-                                                <p className="mb-0">
-                                                    <span className="text-warning me-2">
-                                                        <i className="fe fe-clock me-1"></i>
-                                                    </span>
-                                                    Onay bekleyen talepler
-                                                </p>
-                                            </>
-                                        )}
+                                            ) : myLeaveRequests.filter(r => r.status === 'PENDING').length}
+                                        </h1>
+                                        <p className="mb-0">
+                                            <span className="text-warning me-2">
+                                                <i className="fe fe-clock me-1"></i>
+                                            </span>
+                                            Onay bekleyen talepler
+                                        </p>
                                     </div>
                                 </Card.Body>
                             </Card>
@@ -386,25 +394,19 @@ const Home = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        {loadingLeaveRequests ? (
-                                            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60px' }}>
+                                        <h1 className="fw-bold">
+                                            {loadingLeaveRequests ? (
                                                 <Spinner animation="border" role="status" size="sm">
                                                     <span className="visually-hidden">Yükleniyor...</span>
                                                 </Spinner>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <h1 className="fw-bold">
-                                                    {myLeaveRequests.filter(r => r.status === 'APPROVED').length}
-                                                </h1>
-                                                <p className="mb-0">
-                                                    <span className="text-info me-2">
-                                                        <i className="fe fe-check-circle me-1"></i>
-                                                    </span>
-                                                    Onaylanan talepler
-                                                </p>
-                                            </>
-                                        )}
+                                            ) : myLeaveRequests.filter(r => r.status === 'APPROVED').length}
+                                        </h1>
+                                        <p className="mb-0">
+                                            <span className="text-info me-2">
+                                                <i className="fe fe-check-circle me-1"></i>
+                                            </span>
+                                            Onaylanan talepler
+                                        </p>
                                     </div>
                                 </Card.Body>
                             </Card>
@@ -423,25 +425,19 @@ const Home = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        {loadingLeaveRequests ? (
-                                            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60px' }}>
+                                        <h1 className="fw-bold">
+                                            {loadingLeaveRequests ? (
                                                 <Spinner animation="border" role="status" size="sm">
                                                     <span className="visually-hidden">Yükleniyor...</span>
                                                 </Spinner>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <h1 className="fw-bold">
-                                                    {myLeaveRequests.filter(r => r.status === 'REJECTED').length}
-                                                </h1>
-                                                <p className="mb-0">
-                                                    <span className="text-danger me-2">
-                                                        <i className="fe fe-x-circle me-1"></i>
-                                                    </span>
-                                                    Reddedilen talepler
-                                                </p>
-                                            </>
-                                        )}
+                                            ) : myLeaveRequests.filter(r => r.status === 'REJECTED').length}
+                                        </h1>
+                                        <p className="mb-0">
+                                            <span className="text-danger me-2">
+                                                <i className="fe fe-x-circle me-1"></i>
+                                            </span>
+                                            Reddedilen talepler
+                                        </p>
                                     </div>
                                 </Card.Body>
                             </Card>
@@ -498,11 +494,11 @@ const Home = () => {
                             <h6 style={{ fontWeight: 700, fontSize: '16px', marginBottom: '1rem', fontFamily: 'Poppins, sans-serif' }}>Kariyer Geçmişim</h6>
                             <Card className="border-0 shadow-sm">
                                 <Card.Body className={
-                                        employeeProfile?.work_information &&
+                                    employeeProfile?.work_information &&
                                         employeeProfile.work_information.length > 0
                                         ? ""
                                         : "p-0"
-                                    }>
+                                }>
                                     {employeeProfile?.work_information && employeeProfile.work_information.length > 0 ? (
                                         <div style={{ position: 'relative', paddingLeft: '20px' }}>
                                             {employeeProfile.work_information.map((workInfo: any, index: number) => (
@@ -521,7 +517,7 @@ const Home = () => {
                                                             boxShadow: '0 0 0 2px #624bff',
                                                         }}
                                                     />
-                                                    
+
                                                     {/* Timeline line (sadece son item hariç) */}
                                                     {index < employeeProfile.work_information.length - 1 && (
                                                         <div
@@ -545,7 +541,7 @@ const Home = () => {
                                                             <strong>{workInfo.company_name}</strong> • {workInfo.department_name}
                                                         </p>
                                                         <p style={{ marginBottom: '8px', fontSize: '12px', color: '#9ca3af', fontFamily: 'Poppins, sans-serif' }}>
-                                                            {formatDate(workInfo.start_date)} 
+                                                            {formatDate(workInfo.start_date)}
                                                             {workInfo.end_date ? ` → ${formatDate(workInfo.end_date)}` : ' → Devam Ediyor'}
                                                         </p>
                                                         {workInfo.manager && (
@@ -574,7 +570,10 @@ const Home = () => {
     // ADMIN/MANAGER Dashboard
     return (
         <Fragment>
+
             <Container fluid className="px-6 py-4">
+                <LoadingOverlay show={loading} message="Yükleniyor..." />
+
                 <Row>
                     <Col xl={3} lg={6} md={12} xs={12} className="mb-6">
                         <Card className="border-0">
@@ -588,7 +587,13 @@ const Home = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <h1 className="fw-bold">{stats.total_employees}</h1>
+                                    <h1 className="fw-bold">
+                                        {loadingStats ? (
+                                            <Spinner animation="border" role="status" size="sm">
+                                                <span className="visually-hidden">Yükleniyor...</span>
+                                            </Spinner>
+                                        ) : stats.total_employees}
+                                    </h1>
                                     <p className="mb-0">
                                         <span className="text-success me-2">
                                             <i className="fe fe-trending-up me-1"></i>
@@ -612,7 +617,13 @@ const Home = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <h1 className="fw-bold">{stats.total_companies}</h1>
+                                    <h1 className="fw-bold">
+                                        {loadingStats ? (
+                                            <Spinner animation="border" role="status" size="sm">
+                                                <span className="visually-hidden">Yükleniyor...</span>
+                                            </Spinner>
+                                        ) : stats.total_companies}
+                                    </h1>
                                     <p className="mb-0">
                                         <span className="text-dark me-2">
                                             <i className="fe fe-building me-1"></i>
@@ -636,7 +647,13 @@ const Home = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <h1 className="fw-bold">{stats.total_departments}</h1>
+                                    <h1 className="fw-bold">
+                                        {loadingStats ? (
+                                            <Spinner animation="border" role="status" size="sm">
+                                                <span className="visually-hidden">Yükleniyor...</span>
+                                            </Spinner>
+                                        ) : stats.total_departments}
+                                    </h1>
                                     <p className="mb-0">
                                         <span className="text-dark me-2">
                                             <i className="fe fe-users me-1"></i>
@@ -660,7 +677,13 @@ const Home = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <h1 className="fw-bold">{stats.pending_leave_requests}</h1>
+                                    <h1 className="fw-bold">
+                                        {loadingStats ? (
+                                            <Spinner animation="border" role="status" size="sm">
+                                                <span className="visually-hidden">Yükleniyor...</span>
+                                            </Spinner>
+                                        ) : stats.pending_leave_requests}
+                                    </h1>
                                     <p className="mb-0">
                                         <span className="text-info me-2">
                                             <i className="fe fe-clock me-1"></i>
@@ -682,7 +705,13 @@ const Home = () => {
                                 <h5 className="mb-0">Cinsiyete Göre Çalışan Sayısı</h5>
                             </Card.Header>
                             <Card.Body>
-                                {genderData.length > 0 ? (
+                                {loadingGenderData ? (
+                                    <div className="d-flex justify-content-center align-items-center py-5" style={{ minHeight: '300px' }}>
+                                        <Spinner animation="border" role="status" size="sm">
+                                            <span className="visually-hidden">Yükleniyor...</span>
+                                        </Spinner>
+                                    </div>
+                                ) : genderData.length > 0 ? (
                                     <ResponsiveContainer width="100%" height={300}>
                                         <PieChart>
                                             <Pie
@@ -704,9 +733,7 @@ const Home = () => {
                                     </ResponsiveContainer>
                                 ) : (
                                     <div className="d-flex justify-content-center align-items-center py-5" style={{ minHeight: '300px' }}>
-                                        <Spinner animation="border" role="status" size="sm">
-                                            <span className="visually-hidden">Yükleniyor...</span>
-                                        </Spinner>
+                                        <span className="text-muted">Veri bulunamadı</span>
                                     </div>
                                 )}
                             </Card.Body>
@@ -720,7 +747,13 @@ const Home = () => {
                                 <h5 className="mb-0">Pozisyona Göre Çalışan Sayısı</h5>
                             </Card.Header>
                             <Card.Body>
-                                {positionData.length > 0 ? (
+                                {loadingPositionData ? (
+                                    <div className="d-flex justify-content-center align-items-center py-5" style={{ minHeight: '300px' }}>
+                                        <Spinner animation="border" role="status" size="sm">
+                                            <span className="visually-hidden">Yükleniyor...</span>
+                                        </Spinner>
+                                    </div>
+                                ) : positionData.length > 0 ? (
                                     <ResponsiveContainer width="100%" height={300}>
                                         <BarChart data={positionData}>
                                             <CartesianGrid strokeDasharray="3 3" />
@@ -732,9 +765,7 @@ const Home = () => {
                                     </ResponsiveContainer>
                                 ) : (
                                     <div className="d-flex justify-content-center align-items-center py-5" style={{ minHeight: '300px' }}>
-                                        <Spinner animation="border" role="status" size="sm">
-                                            <span className="visually-hidden">Yükleniyor...</span>
-                                        </Spinner>
+                                        <span className="text-muted">Veri bulunamadı</span>
                                     </div>
                                 )}
                             </Card.Body>
@@ -748,7 +779,13 @@ const Home = () => {
                                 <h5 className="mb-0">Şirket-Departmana Göre Çalışan Sayısı</h5>
                             </Card.Header>
                             <Card.Body>
-                                {companyDeptData.length > 0 ? (
+                                {loadingCompanyDeptData ? (
+                                    <div className="d-flex justify-content-center align-items-center py-5" style={{ minHeight: '300px' }}>
+                                        <Spinner animation="border" role="status" size="sm">
+                                            <span className="visually-hidden">Yükleniyor...</span>
+                                        </Spinner>
+                                    </div>
+                                ) : companyDeptData.length > 0 ? (
                                     <div className="table-responsive" style={{ maxHeight: '300px', overflowY: 'auto' }}>
                                         <table className="table table-sm">
                                             <thead>
@@ -773,9 +810,7 @@ const Home = () => {
                                     </div>
                                 ) : (
                                     <div className="d-flex justify-content-center align-items-center py-5" style={{ minHeight: '300px' }}>
-                                        <Spinner animation="border" role="status" size="sm">
-                                            <span className="visually-hidden">Yükleniyor...</span>
-                                        </Spinner>
+                                        <span className="text-muted">Veri bulunamadı</span>
                                     </div>
                                 )}
                             </Card.Body>

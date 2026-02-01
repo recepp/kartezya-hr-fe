@@ -6,6 +6,7 @@ import { CompanyLookup } from '@/services/lookup.service';
 import { translateErrorMessage, getFieldErrorMessage } from '@/helpers/ErrorUtils';
 import { toast } from 'react-toastify';
 import LoadingOverlay from '@/components/LoadingOverlay';
+import FormSelectField from '@/components/FormSelectField';
 
 interface DepartmentModalProps {
   show: boolean;
@@ -162,7 +163,7 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
           <Modal.Body>
             <Form.Group className="mb-3">
               <Form.Label>Şirket <span className="text-danger">*</span></Form.Label>
-              <Form.Select
+              <FormSelectField
                 name="companyId"
                 value={formData.companyId}
                 onChange={handleInputChange}
@@ -174,7 +175,7 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
                     {company.name}
                   </option>
                 ))}
-              </Form.Select>
+              </FormSelectField>
               {fieldErrors.companyId && (
                 <div className="text-danger mt-1" style={{ fontSize: '0.875rem' }}>
                   {fieldErrors.companyId}

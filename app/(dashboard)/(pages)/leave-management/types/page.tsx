@@ -12,6 +12,7 @@ import { Plus, Edit, Trash2, ChevronUp, ChevronDown } from 'react-feather';
 import { toast } from 'react-toastify';
 import { translateErrorMessage } from '@/helpers/ErrorUtils';
 import '@/styles/table-list.scss';
+import '@/styles/components/table-common.scss';
 
 const LeaveTypesPage = () => {
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
@@ -152,91 +153,9 @@ const LeaveTypesPage = () => {
 
   return (
     <>
-      <style jsx global>{`
-        #page-content {
-          background-color: #f5f7fa;
-          min-height: 100vh;
-        }
-      `}</style>
-
-      <style jsx>{`
-        .sortable-header {
-          transition: background-color 0.2s ease;
-          cursor: pointer;
-          user-select: none;
-        }
-        .sortable-header:hover {
-          background-color: rgba(98, 75, 255, 0.1) !important;
-        }
-        .table-box {
-          border-radius: 8px;
-          overflow: hidden;
-          border: none;
-          margin: 0;
-        }
-        .table-responsive {
-          border-radius: 0;
-          margin-bottom: 0;
-        }
-        table {
-          margin-bottom: 0;
-          table-layout: fixed;
-          width: 100%;
-        }
-        table td, table th {
-          padding: 12px 16px;
-          vertical-align: middle;
-          word-wrap: break-word;
-        }
-        @media (max-width: 768px) {
-          table td, table th {
-            padding: 10px 8px;
-          }
-        }
-        table thead tr {
-          background-color: #f8f9fa;
-          border-bottom: 2px solid #dee2e6;
-        }
-        /* Container responsive padding */
-        .page-container {
-          padding-left: 1.5rem;
-          padding-right: 1.5rem;
-          padding-top: 1.5rem;
-          padding-bottom: 1.5rem;
-        }
-        @media (max-width: 768px) {
-          .page-container {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-          }
-        }
-        /* Inner divs responsive padding */
-        .table-wrapper {
-          padding-left: 0;
-          padding-right: 0;
-        }
-        @media (min-width: 769px) {
-          .table-wrapper {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-          }
-        }
-        /* Page heading wrapper responsive padding */
-        .page-heading-wrapper {
-          padding-left: 0;
-          padding-right: 0;
-        }
-        @media (min-width: 769px) {
-          .page-heading-wrapper {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-          }
-        }
-      `}</style>
-
       <Container fluid className="page-container">
+      <LoadingOverlay show={isLoading} message="İzin türleri yükleniyor..." />
+
         <div className="page-heading-wrapper">
           <PageHeading 
             heading="İzin Türleri"
@@ -251,7 +170,6 @@ const LeaveTypesPage = () => {
           <Col lg={12} md={12} sm={12}>
             <div className="table-wrapper">
               <Card className="border-0 shadow-sm position-relative">
-                <LoadingOverlay show={isLoading} message="İzin türleri yükleniyor..." />
 
                 <Card.Body className="p-0">
                   <div className="table-box">

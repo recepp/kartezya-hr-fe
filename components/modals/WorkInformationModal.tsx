@@ -6,6 +6,7 @@ import { translateErrorMessage } from '@/helpers/ErrorUtils';
 import { toast } from 'react-toastify';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import FormDateField from '@/components/FormDateField';
+import FormSelectField from '@/components/FormSelectField';
 
 interface WorkInformationModalProps {
   show: boolean;
@@ -279,13 +280,12 @@ const WorkInformationModal: React.FC<WorkInformationModalProps> = ({
               <Col md={6}>
                 <Form.Group>
                   <Form.Label>Şirket <span className="text-danger">*</span></Form.Label>
-                  <Form.Select
+                  <FormSelectField
                     name="company_id"
                     value={formData.company_id}
                     onChange={handleInputChange}
                     isInvalid={!!fieldErrors.company_id}
                     disabled={loadingLookups}
-                    size="sm"
                   >
                     <option value="">Şirket seçiniz</option>
                     {companies.map((company) => (
@@ -293,7 +293,7 @@ const WorkInformationModal: React.FC<WorkInformationModalProps> = ({
                         {company.name}
                       </option>
                     ))}
-                  </Form.Select>
+                  </FormSelectField>
                   {fieldErrors.company_id && (
                     <div className="text-danger mt-1" style={{ fontSize: '0.875rem' }}>
                       {fieldErrors.company_id}
@@ -304,13 +304,12 @@ const WorkInformationModal: React.FC<WorkInformationModalProps> = ({
               <Col md={6}>
                 <Form.Group>
                   <Form.Label>Departman <span className="text-danger">*</span></Form.Label>
-                  <Form.Select
+                  <FormSelectField
                     name="department_id"
                     value={formData.department_id}
                     onChange={handleInputChange}
                     isInvalid={!!fieldErrors.department_id}
                     disabled={loadingLookups}
-                    size="sm"
                   >
                     <option value="">Departman seçiniz</option>
                     {departments.map((dept) => (
@@ -318,7 +317,7 @@ const WorkInformationModal: React.FC<WorkInformationModalProps> = ({
                         {dept.name}
                       </option>
                     ))}
-                  </Form.Select>
+                  </FormSelectField>
                   {fieldErrors.department_id && (
                     <div className="text-danger mt-1" style={{ fontSize: '0.875rem' }}>
                       {fieldErrors.department_id}
@@ -332,13 +331,12 @@ const WorkInformationModal: React.FC<WorkInformationModalProps> = ({
               <Col md={12}>
                 <Form.Group>
                   <Form.Label>Pozisyon <span className="text-danger">*</span></Form.Label>
-                  <Form.Select
+                  <FormSelectField
                     name="job_position_id"
                     value={formData.job_position_id}
                     onChange={handleInputChange}
                     isInvalid={!!fieldErrors.job_position_id}
                     disabled={loadingLookups}
-                    size="sm"
                   >
                     <option value="">Pozisyon seçiniz</option>
                     {jobPositions.map((position) => (
@@ -346,7 +344,7 @@ const WorkInformationModal: React.FC<WorkInformationModalProps> = ({
                         {position.title}
                       </option>
                     ))}
-                  </Form.Select>
+                  </FormSelectField>
                   {fieldErrors.job_position_id && (
                     <div className="text-danger mt-1" style={{ fontSize: '0.875rem' }}>
                       {fieldErrors.job_position_id}

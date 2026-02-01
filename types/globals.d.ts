@@ -16,10 +16,4 @@ declare global {
         badge?: string;
         badgecolor?: string;
     }
-
-    interface FieldProps<V = any> {
-        field: FieldInputProps<V>;
-        form: FormikProps<V>;
-        meta: FieldMetaProps<V>;
-    }
 }
