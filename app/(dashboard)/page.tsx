@@ -8,6 +8,7 @@ import { leaveRequestService } from "@/services/leave-request.service";
 import { leaveBalanceService } from "@/services/leave-balance.service";
 import { employeeService } from "@/services/employee.service";
 import { LeaveRequest, LeaveBalance } from "@/models/hr/common.types";
+import { useRouter } from 'next/navigation';
 import LoadingOverlay from "@/components/LoadingOverlay";
 
 // Helper function to format dates from API (ISO strings) or local format (number arrays)
@@ -40,6 +41,7 @@ const formatDate = (date?: string | number[]): string => {
 
 const Home = () => {
     const { user } = useAuth();
+    const router = useRouter();
     const isAdmin = user?.roles?.includes('ADMIN');
 
     // Admin/Manager state
@@ -576,7 +578,7 @@ const Home = () => {
 
                 <Row>
                     <Col xl={3} lg={6} md={12} xs={12} className="mb-6">
-                        <Card className="border-0">
+                        <Card className="border-0" style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }} onClick={() => router.push('/employees')} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
                             <Card.Body>
                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                     <div>
@@ -606,7 +608,7 @@ const Home = () => {
                     </Col>
 
                     <Col xl={3} lg={6} md={12} xs={12} className="mb-6">
-                        <Card className="border-0">
+                        <Card className="border-0" style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }} onClick={() => router.push('/companies')} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
                             <Card.Body>
                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                     <div>
@@ -636,7 +638,7 @@ const Home = () => {
                     </Col>
 
                     <Col xl={3} lg={6} md={12} xs={12} className="mb-6">
-                        <Card className="border-0">
+                        <Card className="border-0" style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }} onClick={() => router.push('/departments')} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
                             <Card.Body>
                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                     <div>
@@ -666,7 +668,7 @@ const Home = () => {
                     </Col>
 
                     <Col xl={3} lg={6} md={12} xs={12} className="mb-6">
-                        <Card className="border-0">
+                        <Card className="border-0" style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }} onClick={() => router.push('/leave-management/requests')} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
                             <Card.Body>
                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                     <div>
