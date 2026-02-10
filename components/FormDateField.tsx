@@ -60,11 +60,8 @@ const FormDateField = ({
 
     useEffect(() => {
         if (isOpen) {
-            // Sadece mobile'da scroll'u engelle
-            const isMobile = typeof window !== 'undefined' && window.innerWidth <= 576;
-            if (isMobile) {
-                document.body.style.overflow = "hidden";
-            }
+            // Popup açıkken body scroll'u engelle
+            document.body.style.overflow = "hidden";
             return () => {
                 document.body.style.overflow = "unset";
             };
@@ -292,17 +289,18 @@ const FormDateField = ({
                 <>
                     <div
                         style={{
-                            position: "absolute",
-                            top: "100%",
-                            left: 0,
-                            right: 0,
+                            position: "fixed",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
                             backgroundColor: "#ffffff",
                             border: "1px solid #d0d0d0",
                             borderRadius: "8px",
                             boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
-                            zIndex: 1000,
-                            marginTop: "0.5rem",
-                            width: "100%",
+                            zIndex: 1060,
+                            width: "auto",
+                            minWidth: "320px",
+                            maxWidth: "90vw",
                             display: "none",
                         }}
                         className="calendar-popover calendar-desktop"
@@ -404,7 +402,7 @@ const FormDateField = ({
                             right: 0,
                             bottom: 0,
                             backgroundColor: "rgba(0, 0, 0, 0.5)",
-                            zIndex: 999,
+                            zIndex: 1055,
                             display: "none",
                         }}
                         className="calendar-backdrop"
@@ -422,7 +420,7 @@ const FormDateField = ({
                             border: "1px solid #d0d0d0",
                             borderRadius: "16px 16px 0 0",
                             boxShadow: "0 -8px 24px rgba(0, 0, 0, 0.12)",
-                            zIndex: 1000,
+                            zIndex: 1060,
                             width: "100%",
                             maxHeight: "80vh",
                             overflowY: "auto",
@@ -549,7 +547,7 @@ const FormDateField = ({
                 }
 
                 .calendar-popover {
-                    animation: slideDown 0.2s ease-in-out forwards;
+                    animation: fadeIn 0.2s ease-in-out forwards;
                 }
 
                 .calendar-desktop {
@@ -564,14 +562,14 @@ const FormDateField = ({
                     display: none !important;
                 }
 
-                @keyframes slideDown {
+                @keyframes fadeIn {
                     from {
                         opacity: 0;
-                        transform: translateY(-10px);
+                        transform: translate(-50%, -50%) scale(0.95);
                     }
                     to {
                         opacity: 1;
-                        transform: translateY(0);
+                        transform: translate(-50%, -50%) scale(1);
                     }
                 }
 
@@ -586,18 +584,22 @@ const FormDateField = ({
                     }
                 }
 
-                /* Desktop: absolute positioning */
+                /* Desktop: centered popup with backdrop */
                 @media (min-width: 577px) {
+                    .calendar-backdrop {
+                        display: block !important;
+                    }
+
                     .calendar-desktop {
                         display: block !important;
                     }
 
                     .calendar-desktop {
-                        animation: slideDown 0.2s ease-in-out forwards;
+                        animation: fadeIn 0.2s ease-in-out forwards;
                     }
                 }
 
-                /* Mobile: fixed positioning with backdrop */
+                /* Mobile: bottom sheet with backdrop */
                 @media (max-width: 576px) {
                     .calendar-backdrop {
                         display: block !important;
