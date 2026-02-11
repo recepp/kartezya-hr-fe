@@ -1,10 +1,11 @@
 "use client";
-import { Row, Col, Card, Form, Button, Alert } from "react-bootstrap";
+import { Row, Col, Card, Form, Button, Alert, InputGroup } from "react-bootstrap";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import useMounted from "@/hooks/useMounted";
 import { authService, LoginRequest } from "@/services/auth.service";
 import FormTextField from "@/components/FormTextField";
+import { Eye, EyeOff } from "react-feather";
 import { toast } from "react-toastify";
 
 interface FormData {
@@ -21,6 +22,7 @@ const Login = () => {
   const hasMounted = useMounted();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
@@ -127,20 +129,35 @@ const Login = () => {
                   required
                 />
                 
-                <FormTextField
-                  as={Col}
-                  md={12}
-                  controlId="validationPassword"
-                  label="Şifre"
-                  type="password"
-                  name="password"
-                  placeholder="Şifrenizi giriniz"
-                  value={formData.password}
-                  onChange={(name, value) => handleInputChange(name, value)}
-                  onBlur={(name) => handleInputBlur(name)}
-                  error={touched.password ? errors.password : undefined}
-                  required
-                />
+                <Form.Group className="mb-3" controlId="validationPassword">
+                  <Form.Label>
+                    Şifre
+                    <span className="text-danger ms-1">*</span>
+                  </Form.Label>
+                  <InputGroup>
+                    <Form.Control
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      placeholder="Şifrenizi giriniz"
+                      value={formData.password}
+                      onChange={(e) => handleInputChange("password", e.target.value)}
+                      onBlur={() => handleInputBlur("password")}
+                      isInvalid={touched.password && !!errors.password}
+                    />
+                    <Button
+                      variant="outline-secondary"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ borderLeft: 0 }}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </Button>
+                    {touched.password && errors.password && (
+                      <Form.Control.Feedback type="invalid" style={{ display: 'block' }}>
+                        {errors.password}
+                      </Form.Control.Feedback>
+                    )}
+                  </InputGroup>
+                </Form.Group>
 
                 <div className="d-grid mt-4">
                   <Button
