@@ -27,10 +27,10 @@ const LeaveRequestsPage = () => {
   const [showApproveWarningModal, setShowApproveWarningModal] = useState(false);
   const [approveWarningRequest, setApproveWarningRequest] = useState<LeaveRequest | null>(null);
 
-  const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -40,13 +40,13 @@ const LeaveRequestsPage = () => {
     direction: 'DESC'
   });
 
-  const fetchLeaveRequests = async (page: number = 1, sortKey: string = 'created_at', sortDir: 'ASC' | 'DESC' = 'DESC') => {
+  const fetchLeaveRequests = async (page: number = 1, sortKey: string = 'created_at', sortDir: 'ASC' | 'DESC' = 'DESC', perPage?: number) => {
     try {
       setIsLoading(true);
 
       const response = await leaveRequestService.getAll({ 
         page, 
-        limit: itemsPerPage,
+        limit: perPage || itemsPerPage,
         sort: sortKey,
         direction: sortDir
       });
@@ -190,7 +190,13 @@ const LeaveRequestsPage = () => {
   };
 
   const handlePageChange = (newPage: number) => {
-    fetchLeaveRequests(newPage, sortConfig.key || undefined, sortConfig.direction);
+    fetchLeaveRequests(newPage, sortConfig.key || undefined, sortConfig.direction, itemsPerPage);
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setItemsPerPage(newPageSize);
+    setCurrentPage(1);
+    fetchLeaveRequests(1, sortConfig.key || undefined, sortConfig.direction, newPageSize);
   };
 
   const getStatusBadge = (status: string) => {
@@ -386,7 +392,7 @@ const LeaveRequestsPage = () => {
           </Col>
         </Row>
 
-        {totalPages > 1 && !isLoading && (
+        {!isLoading && totalItems > 0 && (
           <Row className="mt-4">
             <Col lg={12} md={12} sm={12}>
               <div className="px-3">
@@ -396,6 +402,7 @@ const LeaveRequestsPage = () => {
                   totalItems={totalItems}
                   itemsPerPage={itemsPerPage}
                   onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
                 />
               </div>
             </Col>

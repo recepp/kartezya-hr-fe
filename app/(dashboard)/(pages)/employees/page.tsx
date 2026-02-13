@@ -29,11 +29,10 @@ const EmployeesPage = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const [itemsPerPageValue, setItemsPerPageValue] = useState(10); // New state for items per page
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const [sortConfig, setSortConfig] = useState<{
     key: 'first_name' | 'last_name' | null;
@@ -137,7 +136,7 @@ const EmployeesPage = () => {
 
       const params: any = { 
         page, 
-        limit: perPage || itemsPerPageValue,
+        limit: perPage || itemsPerPage,
         sort: sortKey,
         direction: sortDir,
         ...filters
@@ -199,7 +198,7 @@ const EmployeesPage = () => {
       return acc;
     }, {} as any);
 
-    fetchEmployees(1, sortConfig.key || undefined, sortConfig.direction, activeFilters, itemsPerPageValue);
+    fetchEmployees(1, sortConfig.key || undefined, sortConfig.direction, activeFilters, itemsPerPage);
   };
 
   const clearFilters = () => {
@@ -215,7 +214,7 @@ const EmployeesPage = () => {
       marital_status: '',
       grade_id: ''
     });
-    fetchEmployees(1, sortConfig.key || undefined, sortConfig.direction, {}, itemsPerPageValue);
+    fetchEmployees(1, sortConfig.key || undefined, sortConfig.direction, {}, itemsPerPage);
   };
 
   const handleSort = (key: 'first_name' | 'last_name') => {
@@ -237,7 +236,7 @@ const EmployeesPage = () => {
       return acc;
     }, {} as any);
 
-    fetchEmployees(1, key, direction, activeFilters, itemsPerPageValue);
+    fetchEmployees(1, key, direction, activeFilters, itemsPerPage);
   };
 
   const getSortIcon = (columnKey: 'first_name' | 'last_name') => {
@@ -343,7 +342,26 @@ const EmployeesPage = () => {
       return acc;
     }, {} as any);
 
-    fetchEmployees(newPage, sortConfig.key || undefined, sortConfig.direction, activeFilters, itemsPerPageValue);
+    fetchEmployees(newPage, sortConfig.key || undefined, sortConfig.direction, activeFilters, itemsPerPage);
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setItemsPerPage(newPageSize);
+    setCurrentPage(1);
+    
+    // Apply current filters with new page size
+    const activeFilters = Object.entries(filterParams).reduce((acc, [key, value]) => {
+      if (key === 'department_ids') {
+        if (Array.isArray(value) && value.length > 0) {
+          acc['department_ids'] = value.join(',');
+        }
+      } else if (value && value.toString().trim() !== '') {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as any);
+
+    fetchEmployees(1, sortConfig.key || undefined, sortConfig.direction, activeFilters, newPageSize);
   };
 
   return (
@@ -597,7 +615,7 @@ const EmployeesPage = () => {
           </Col>
         </Row>
 
-        {totalPages > 1 && !isLoading && (
+        {!isLoading && totalItems > 0 && (
           <Row className="mt-4">
             <Col lg={12} md={12} sm={12}>
               <div className="px-3">
@@ -605,8 +623,9 @@ const EmployeesPage = () => {
                   currentPage={currentPage}
                   totalPages={totalPages}
                   totalItems={totalItems}
-                  itemsPerPage={itemsPerPageValue}
+                  itemsPerPage={itemsPerPage}
                   onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
                 />
               </div>
             </Col>

@@ -35,7 +35,7 @@ const WorkDayReportPage = () => {
 
   // Pagination and sorting state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortConfig, setSortConfig] = useState<{
     key: 'first_name' | 'last_name' | 'identity_no' | 'company_name' | 'department_name' | 'work_days' | null;
     direction: 'ASC' | 'DESC';
@@ -222,6 +222,11 @@ const WorkDayReportPage = () => {
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setItemsPerPage(newPageSize);
+    setCurrentPage(1); // Reset to first page when changing page size
   };
 
   return (
@@ -430,7 +435,7 @@ const WorkDayReportPage = () => {
               </Col>
             </Row>
 
-            {getTotalPages() > 1 && !isLoading && (
+            {reportData && reportData.rows && reportData.rows.length > 0 && !isLoading && (
               <Row className="mt-4">
                 <Col lg={12} md={12} sm={12}>
                   <div className="px-3">
@@ -440,6 +445,7 @@ const WorkDayReportPage = () => {
                       totalItems={reportData.rows?.length || 0}
                       itemsPerPage={itemsPerPage}
                       onPageChange={handlePageChange}
+                      onPageSizeChange={handlePageSizeChange}
                     />
                   </div>
                 </Col>

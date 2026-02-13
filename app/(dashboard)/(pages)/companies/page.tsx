@@ -24,10 +24,10 @@ const CompaniesPage = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const [sortConfig, setSortConfig] = useState<{
     key: 'name' | null;
@@ -39,13 +39,13 @@ const CompaniesPage = () => {
 
   const router = useRouter();
 
-  const fetchCompanies = async (page: number = 1, sortKey?: string, sortDir?: 'ASC' | 'DESC') => {
+  const fetchCompanies = async (page: number = 1, sortKey?: string, sortDir?: 'ASC' | 'DESC', perPage?: number) => {
     try {
       setIsLoading(true);
 
       const response = await companyService.getAll({ 
         page, 
-        limit: itemsPerPage,
+        limit: perPage || itemsPerPage,
         sort: sortKey,
         direction: sortDir
       });
@@ -155,7 +155,13 @@ const CompaniesPage = () => {
   };
 
   const handlePageChange = (newPage: number) => {
-    fetchCompanies(newPage, sortConfig.key || undefined, sortConfig.direction);
+    fetchCompanies(newPage, sortConfig.key || undefined, sortConfig.direction, itemsPerPage);
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setItemsPerPage(newPageSize);
+    setCurrentPage(1);
+    fetchCompanies(1, sortConfig.key || undefined, sortConfig.direction, newPageSize);
   };
 
   return (
@@ -255,7 +261,7 @@ const CompaniesPage = () => {
           </Col>
         </Row>
 
-        {totalPages > 1 && (
+        {totalItems > 0 && (
           <Row className="mt-3">
             <Col lg={12}>
               <div className="table-wrapper">
@@ -263,7 +269,10 @@ const CompaniesPage = () => {
                   <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}
+                    totalItems={totalItems}
+                    itemsPerPage={itemsPerPage}
                     onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
                   />
                 </div>
               </div>
