@@ -21,6 +21,11 @@ const Login = () => {
   const hasMounted = useMounted();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Email/password login'i aktif/pasif yapmak için flag
+  // true yaparsanız email/password formu görünür olur
+  const ENABLE_EMAIL_PASSWORD_LOGIN = false;
+  
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
@@ -102,61 +107,76 @@ const Login = () => {
   };
 
   return (
-    <Row className="align-items-center justify-content-center g-0 min-vh-100">
+    <Row className="align-items-center justify-content-center g-0 min-vh-100" style={{ backgroundColor: '#000000' }}>
       <Col xxl={4} lg={6} md={8} xs={12} className="py-8 py-xl-0">
-        <Card className="smooth-shadow-md">
+        <Card style={{ 
+          backgroundColor: '#212b36', 
+          border: 'none',
+          boxShadow: '0 1rem 3rem rgba(255, 255, 255, 0.15)'
+        }}>
           <Card.Body className="p-6">
-            <div className="d-flex justify-content-center align-items-center mb-6">
-              <p className="h3 fw-bold">Kartezya HR</p>
+            <div className="d-flex flex-column justify-content-center align-items-center">
+              <div className="mb-4">
+                <img 
+                  src="https://kartezya.com/wp-content/uploads/2025/02/togetherBoyut2.svg" 
+                  alt="Kartezya HR" 
+                  style={{ minWidth: '300px', maxWidth: '400px', height: 'auto' }}
+                />
+              </div>
             </div>
 
             {hasMounted && (
               <Form noValidate onSubmit={handleSubmit}>
-                <FormTextField
-                  as={Col}
-                  md={12}
-                  controlId="validationEmail"
-                  label="E-posta"
-                  type="email"
-                  name="email"
-                  placeholder="E-posta adresinizi giriniz"
-                  value={formData.email}
-                  onChange={(name, value) => handleInputChange(name, value)}
-                  onBlur={(name) => handleInputBlur(name)}
-                  error={touched.email ? errors.email : undefined}
-                  required
-                />
-                
-                <FormTextField
-                  as={Col}
-                  md={12}
-                  controlId="validationPassword"
-                  label="Şifre"
-                  type="password"
-                  name="password"
-                  placeholder="Şifrenizi giriniz"
-                  value={formData.password}
-                  onChange={(name, value) => handleInputChange(name, value)}
-                  onBlur={(name) => handleInputBlur(name)}
-                  error={touched.password ? errors.password : undefined}
-                  required
-                />
+                {/* Email/Password Login - İleride açmak için ENABLE_EMAIL_PASSWORD_LOGIN'i true yapın */}
+                {ENABLE_EMAIL_PASSWORD_LOGIN && (
+                  <>
+                    <FormTextField
+                      as={Col}
+                      md={12}
+                      controlId="validationEmail"
+                      label="E-posta"
+                      type="email"
+                      name="email"
+                      placeholder="E-posta adresinizi giriniz"
+                      value={formData.email}
+                      onChange={(name, value) => handleInputChange(name, value)}
+                      onBlur={(name) => handleInputBlur(name)}
+                      error={touched.email ? errors.email : undefined}
+                      required
+                    />
+                    
+                    <FormTextField
+                      as={Col}
+                      md={12}
+                      controlId="validationPassword"
+                      label="Şifre"
+                      type="password"
+                      name="password"
+                      placeholder="Şifrenizi giriniz"
+                      value={formData.password}
+                      onChange={(name, value) => handleInputChange(name, value)}
+                      onBlur={(name) => handleInputBlur(name)}
+                      error={touched.password ? errors.password : undefined}
+                      required
+                    />
 
-                <div className="d-grid mt-4">
-                  <Button
-                    disabled={!isFormValid || isLoading}
-                    variant="primary"
-                    type="submit"
-                  >
-                    {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
-                  </Button>
-                </div>
+                    <div className="d-grid mt-4">
+                      <Button
+                        disabled={!isFormValid || isLoading}
+                        variant="primary"
+                        type="submit"
+                      >
+                        {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
+                      </Button>
+                    </div>
 
-                <div className="d-flex align-items-center my-3">
-                  <hr className="flex-grow-1" />
-                  <span className="px-2 text-muted">veya</span>
-                  <hr className="flex-grow-1" />
-                </div>
+                    <div className="d-flex align-items-center my-3">
+                      <hr className="flex-grow-1" />
+                      <span className="px-2 text-muted">veya</span>
+                      <hr className="flex-grow-1" />
+                    </div>
+                  </>
+                )}
 
                 <div className="d-grid">
                   <Button
