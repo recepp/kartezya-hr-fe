@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pagination } from 'react-bootstrap';
+import { Pagination, Form } from 'react-bootstrap';
 
 type IProps = {
     currentPage: number;
@@ -7,6 +7,8 @@ type IProps = {
     onPageChange: (page: number) => void;
     totalItems?: number;
     itemsPerPage?: number;
+    onPageSizeChange?: (pageSize: number) => void;
+    pageSizeOptions?: number[];
 }
 
 const CustomPagination = ({ 
@@ -14,10 +16,13 @@ const CustomPagination = ({
     totalPages, 
     onPageChange, 
     totalItems,
-    itemsPerPage 
+    itemsPerPage = 10,
+    onPageSizeChange,
+    pageSizeOptions = [10, 20, 50, 100]
 }: IProps) => {
 
-    if (totalPages <= 1) {
+    // If no page size change and only one page, don't show pagination at all
+    if (totalPages <= 1 && !onPageSizeChange) {
         return null;
     }
 
@@ -89,42 +94,82 @@ const CustomPagination = ({
         <div style={{ padding: '0 16px' }}>
             {/* Desktop görünüm */}
             <div className="d-none d-md-flex justify-content-between align-items-center">
-                {totalItems && itemsPerPage && (
-                    <div className="text-muted" style={{ fontSize: '0.875rem' }}>
-                        Toplam {totalItems} kayıt, sayfa {currentPage} / {totalPages}
-                    </div>
+                <div className="d-flex align-items-center gap-3">
+                    {onPageSizeChange && (
+                        <div className="d-flex align-items-center gap-2">
+                            <span className="text-muted" style={{ fontSize: '0.875rem', whiteSpace: 'nowrap' }}>
+                                Sayfa başına:
+                            </span>
+                            <Form.Select 
+                                size="sm"
+                                value={itemsPerPage}
+                                onChange={(e) => onPageSizeChange(Number(e.target.value))}
+                                style={{ width: 'auto', minWidth: '70px' }}
+                            >
+                                {pageSizeOptions.map(size => (
+                                    <option key={size} value={size}>{size}</option>
+                                ))}
+                            </Form.Select>
+                        </div>
+                    )}
+                    {totalItems && (
+                        <div className="text-muted" style={{ fontSize: '0.875rem' }}>
+                            Toplam {totalItems} kayıt, sayfa {currentPage} / {totalPages}
+                        </div>
+                    )}
+                </div>
+                {totalPages > 1 && (
+                    <Pagination className="mb-0">
+                        <Pagination.Prev 
+                            disabled={currentPage === 1} 
+                            onClick={onPrevious} 
+                        />
+                        {renderPageItems()}
+                        <Pagination.Next 
+                            disabled={currentPage === totalPages} 
+                            onClick={onNext} 
+                        />
+                    </Pagination>
                 )}
-                <Pagination className="mb-0">
-                    <Pagination.Prev 
-                        disabled={currentPage === 1} 
-                        onClick={onPrevious} 
-                    />
-                    {renderPageItems()}
-                    <Pagination.Next 
-                        disabled={currentPage === totalPages} 
-                        onClick={onNext} 
-                    />
-                </Pagination>
             </div>
 
             {/* Mobile görünüm */}
-            <div className="d-flex d-md-none flex-column align-items-center">
-                {totalItems && itemsPerPage && (
-                    <div className="text-muted text-center mb-2" style={{ fontSize: '0.875rem' }}>
+            <div className="d-flex d-md-none flex-column align-items-center gap-2">
+                {onPageSizeChange && (
+                    <div className="d-flex align-items-center gap-2">
+                        <span className="text-muted" style={{ fontSize: '0.875rem', whiteSpace: 'nowrap' }}>
+                            Sayfa başına:
+                        </span>
+                        <Form.Select 
+                            size="sm"
+                            value={itemsPerPage}
+                            onChange={(e) => onPageSizeChange(Number(e.target.value))}
+                            style={{ width: 'auto', minWidth: '70px' }}
+                        >
+                            {pageSizeOptions.map(size => (
+                                <option key={size} value={size}>{size}</option>
+                            ))}
+                        </Form.Select>
+                    </div>
+                )}
+                {totalItems && (
+                    <div className="text-muted text-center" style={{ fontSize: '0.875rem' }}>
                         Toplam {totalItems} kayıt, sayfa {currentPage} / {totalPages}
                     </div>
                 )}
-                <Pagination className="mb-0 justify-content-center">
-                    <Pagination.Prev 
-                        disabled={currentPage === 1} 
-                        onClick={onPrevious} 
-                    />
-                    {renderPageItems()}
-                    <Pagination.Next 
-                        disabled={currentPage === totalPages} 
-                        onClick={onNext} 
-                    />
-                </Pagination>
+                {totalPages > 1 && (
+                    <Pagination className="mb-0 justify-content-center">
+                        <Pagination.Prev 
+                            disabled={currentPage === 1} 
+                            onClick={onPrevious} 
+                        />
+                        {renderPageItems()}
+                        <Pagination.Next 
+                            disabled={currentPage === totalPages} 
+                            onClick={onNext} 
+                        />
+                    </Pagination>
+                )}
             </div>
         </div>
     );

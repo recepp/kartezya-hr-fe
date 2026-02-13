@@ -23,10 +23,10 @@ const DepartmentsPage = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const [sortConfig, setSortConfig] = useState<{
     key: 'company' | 'name' | 'manager' | null;
@@ -36,13 +36,13 @@ const DepartmentsPage = () => {
     direction: 'ASC'
   });
 
-  const fetchDepartments = async (page: number = 1, sortKey: string = "company", sortDir?: 'ASC' | 'DESC') => {
+  const fetchDepartments = async (page: number = 1, sortKey: string = "company", sortDir?: 'ASC' | 'DESC', perPage?: number) => {
     try {
       setIsLoading(true);
       
       const response = await departmentService.getAll({ 
         page, 
-        limit: itemsPerPage,
+        limit: perPage || itemsPerPage,
         sort: sortKey,
         direction: sortDir
       });
@@ -148,7 +148,13 @@ const DepartmentsPage = () => {
   };
 
   const handlePageChange = (newPage: number) => {
-    fetchDepartments(newPage, sortConfig.key || undefined, sortConfig.direction);
+    fetchDepartments(newPage, sortConfig.key || undefined, sortConfig.direction, itemsPerPage);
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setItemsPerPage(newPageSize);
+    setCurrentPage(1);
+    fetchDepartments(1, sortConfig.key || undefined, sortConfig.direction, newPageSize);
   };
 
   return (
@@ -244,7 +250,7 @@ const DepartmentsPage = () => {
           </Col>
         </Row>
 
-        {totalPages > 1 && !isLoading && (
+        {!isLoading && totalItems > 0 && (
           <Row className="mt-4">
             <Col lg={12} md={12} sm={12}>
               <div className="px-3">
@@ -254,6 +260,7 @@ const DepartmentsPage = () => {
                   totalItems={totalItems}
                   itemsPerPage={itemsPerPage}
                   onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
                 />
               </div>
             </Col>
