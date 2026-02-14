@@ -25,7 +25,7 @@ const Login = () => {
   
   // Email/password login'i aktif/pasif yapmak için flag
   // true yaparsanız email/password formu görünür olur
-  const ENABLE_EMAIL_PASSWORD_LOGIN = false;
+  const ENABLE_EMAIL_PASSWORD_LOGIN = true;
   
   const [formData, setFormData] = useState<FormData>({
     email: "",
