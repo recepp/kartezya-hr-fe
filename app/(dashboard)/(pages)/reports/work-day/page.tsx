@@ -398,7 +398,7 @@ const WorkDayReportPage = () => {
                                     <td className="text-end">{Math.round(row.work_days)}</td>
                                     <td className="text-end">{Math.round(row.holiday_days)}</td>
                                     <td className="text-end">{row.used_leave_days.toFixed(1)}</td>
-                                    <td className="text-end">{Math.round(row.worked_days)}</td>
+                                    <td className="text-end">{row.worked_days.toFixed(1)}</td>
                                     <td>{row.company_name}</td>
                                     <td>{row.department_name}</td>
                                     <td>{row.manager || '-'}</td>
