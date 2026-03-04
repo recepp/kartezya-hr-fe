@@ -43,3 +43,14 @@ export const HR_ENDPOINTS = {
     BALANCES_ME: '/leave/balances/me'
   }
 }
+
+// CV Search API
+export const CV_SEARCH_API_BASE_URL =
+  process.env.NEXT_PUBLIC_CV_SEARCH_API_URL ||
+  'https://cv-search-production.up.railway.app/api'
+
+export const CV_SEARCH_ENDPOINTS = {
+  BULK_UPLOAD: '/cv/bulk-upload',
+  BATCH_STATUS: '/cv/batch',
+  HYBRID_SEARCH: '/search/hybrid',
+}
