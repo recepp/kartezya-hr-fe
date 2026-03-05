@@ -14,6 +14,7 @@ import { Search, ChevronDown, ChevronUp } from 'react-feather';
 import { toast } from 'react-toastify';
 import '@/styles/table-list.scss';
 import '@/styles/components/table-common.scss';
+import styles from './cv-search.module.scss';
 
 const scoreColor = (score: number): string => {
   if (score >= 0.7) return '#198754';
@@ -162,8 +163,8 @@ const CvSearchPage = () => {
                       <Table hover className="mb-0">
                         <thead>
                           <tr>
-                            <th style={{ width: 50 }}>Sıra</th>
-                            <th>Ad</th>
+                            <th style={{ width: 50 }} className={`${styles.stickyCol1} ${styles.stickyHeader}`}>Sıra</th>
+                            <th className={`${styles.stickyCol2} ${styles.stickyHeader}`}>Ad</th>
                             <th>Mevcut Pozisyon</th>
                             <th style={{ width: 110 }}>Kıdem</th>
                             <th style={{ width: 90 }}>Deneyim</th>
@@ -180,11 +181,15 @@ const CvSearchPage = () => {
                               const isExpanded = expandedRows.has(candidate.rank);
                               return (
                                 <>
-                                  <tr key={`row-${candidate.rank}`}>
-                                    <td className="text-center fw-semibold">
+                                  <tr
+                                    key={`row-${candidate.rank}`}
+                                    className={`${styles.clickableRow}${isExpanded ? ` ${styles.selectedRow}` : ''}`}
+                                    onClick={() => toggleRow(candidate.rank)}
+                                  >
+                                    <td className={`text-center fw-semibold ${styles.stickyCol1}`}>
                                       {candidate.rank}
                                     </td>
-                                    <td className="fw-semibold">
+                                    <td className={`fw-semibold ${styles.stickyCol2}`}>
                                       {candidate.name || '—'}
                                     </td>
                                     <td className="text-muted small">
@@ -231,7 +236,7 @@ const CvSearchPage = () => {
                                       <Button
                                         variant="outline-secondary"
                                         size="sm"
-                                        onClick={() => toggleRow(candidate.rank)}
+                                        onClick={(e) => { e.stopPropagation(); toggleRow(candidate.rank); }}
                                         title="Detay"
                                       >
                                         {isExpanded ? (
@@ -244,7 +249,7 @@ const CvSearchPage = () => {
                                   </tr>
 
                                   {isExpanded && (
-                                    <tr key={`detail-${candidate.rank}`} className="table-light">
+                                    <tr key={`detail-${candidate.rank}`} className={styles.detailRow}>
                                       <td colSpan={10} className="p-3">
                                         <Row>
                                           {/* LLM Reasoning */}
